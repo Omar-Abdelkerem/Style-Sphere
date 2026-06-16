@@ -1,0 +1,85 @@
+@page "{id:int}"
+@model StyleSphere.Pages.Admin.Products.DeleteModel
+@{
+    ViewData["Title"] = "Delete Product";
+    
+    // Get product from ViewData (set in the .cs file)
+    var product = ViewData["Product"] as StyleSphere.Models.Product;
+}
+
+<div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+    <h1>Delete Product</h1>
+    <hr />
+
+    @if (product != null)
+    {
+        <h3>Are you sure you want to delete this product?</h3>
+        
+        @* Display product information *@
+        <div>
+            <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                <tr>
+                    <th style="background-color: #f0f0f0;">Product ID:</th>
+                    <td>@product.ProductID</td>
+                </tr>
+                <tr>
+                    <th style="background-color: #f0f0f0;">Name:</th>
+                    <td>@product.Name</td>
+                </tr>
+                <tr>
+                    <th style="background-color: #f0f0f0;">Description:</th>
+                    <td>
+                        @if (!string.IsNullOrEmpty(product.Description))
+                        {
+                            @product.Description
+                        }
+                        else
+                        {
+                            <text>N/A</text>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <th style="background-color: #f0f0f0;">Price:</th>
+                    <td>$@product.Price.ToString("F2")</td>
+                </tr>
+                <tr>
+                    <th style="background-color: #f0f0f0;">Stock:</th>
+                    <td>@product.Stock</td>
+                </tr>
+                <tr>
+                    <th style="background-color: #f0f0f0;">Category:</th>
+                    <td>
+                        @if (product.Category != null)
+                        {
+                            @product.Category.Name
+                        }
+                        else
+                        {
+                            <text>N/A</text>
+                        }
+                    </td>
+                </tr>
+                @* Display product image if exists *@
+                @if (!string.IsNullOrEmpty(product.ImageName))
+                {
+                    <tr>
+                        <th style="background-color: #f0f0f0;">Image:</th>
+                        <td>
+                            <img src="~/images/products/@product.ImageName" alt="@product.Name" style="max-width: 200px; max-height: 200px; border: 1px solid #ddd; padding: 5px;" />
+                        </td>
+                    </tr>
+                }
+            </table>
+
+            @* Delete form *@
+            @* When submitted, it will call OnPost method with id *@
+            <form method="post">
+                <input type="hidden" name="id" value="@product.ProductID" />
+                <button type="submit" style="padding: 10px 20px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Delete</button>
+                <a asp-page="Index" style="padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">Cancel</a>
+            </form>
+        </div>
+    }
+</div>
+

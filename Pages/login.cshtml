@@ -1,0 +1,42 @@
+﻿@page
+@model StyleSphere.Pages.loginModel
+@{
+    ViewData["Title"] = "Login - StyleSphere";
+    Layout = "_CustomerLayout";
+}
+
+<div class="auth-container">
+    <h1>Welcome Back!</h1>
+    
+    @* Display error message if login failed *@
+    @if (ViewData["ErrorMessage"] != null)
+    {
+        <div style="background-color: #f8d7da; color: #721c24; padding: 15px; margin: 10px 0; border: 1px solid #f5c6cb; border-radius: 4px;">
+            @ViewData["ErrorMessage"]
+        </div>
+    }
+    
+    @* Login form *@
+    @* When submitted, it will call OnPost method with email and password *@
+    <form method="post">
+        @* Email input field *@
+        <div style="margin-bottom: 15px;">
+            <label for="email">Email</label><br />
+            <input type="email" name="email" id="email" placeholder="Enter your email" required style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;" />
+        </div>
+
+        @* Password input field *@
+        <div style="margin-bottom: 15px;">
+            <label for="password">Password</label><br />
+            <input type="password" name="password" id="password" placeholder="Enter your password" required style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;" />
+        </div>
+
+        @* Submit button *@
+        <button type="submit" style="width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Login</button>
+    </form>
+    
+    @* Link to registration page *@
+    <div class="auth-switch">
+        Don't have an account? <a asp-page="/Register">Sign Up</a>
+    </div>
+</div>

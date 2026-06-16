@@ -1,0 +1,120 @@
+@page
+@model StyleSphere.Pages.Admin.ReportsModel
+@{
+    ViewData["Title"] = "Admin Reports";
+    
+    // Get data from ViewData (set in the .cs file)
+    var productCountByCategory = ViewData["ProductCountByCategory"] as Dictionary<string, int>;
+    var lowStockProducts = ViewData["LowStockProducts"] as List<StyleSphere.Models.Product>;
+    var totalRevenue = ViewData["TotalRevenue"] as decimal? ?? 0;
+    var ordersByStatus = ViewData["OrdersByStatus"] as Dictionary<string, int>;
+}
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+    <h1>Admin Reports</h1>
+    <hr />
+
+    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+        @* Products Count by Category Report *@
+        <div style="flex: 1;">
+            <div style="border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
+                <h3 style="margin-top: 0; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Products Count by Category</h3>
+                <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #f0f0f0;">
+                            <th>Category</th>
+                            <th>Product Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @* Loop through each category and display product count *@
+                        @if (productCountByCategory != null)
+                        {
+                            @foreach (var item in productCountByCategory)
+                            {
+                                <tr>
+                                    <td>@item.Key</td>
+                                    <td>@item.Value</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        @* Low Stock Products Report *@
+        <div style="flex: 1;">
+            <div style="border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
+                <h3 style="margin-top: 0; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Low Stock Products (Stock <= 10)</h3>
+                <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #f0f0f0;">
+                            <th>Product</th>
+                            <th>Stock</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @* Loop through each low stock product and display it *@
+                        @if (lowStockProducts != null && lowStockProducts.Count > 0)
+                        {
+                            @foreach (var product in lowStockProducts)
+                            {
+                                <tr>
+                                    <td>@product.Name</td>
+                                    <td><span style="background-color: #dc3545; color: white; padding: 5px 10px; border-radius: 4px;">@product.Stock</span></td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="2">No products with low stock.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 20px;">
+        @* Total Revenue Report *@
+        <div style="flex: 1;">
+            <div style="border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
+                <h3 style="margin-top: 0; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Total Revenue</h3>
+                <h2 style="margin: 20px 0;">$@totalRevenue.ToString("F2")</h2>
+                <p style="color: #6c757d;">Total revenue from all completed orders.</p>
+            </div>
+        </div>
+
+        @* Orders by Status Report *@
+        <div style="flex: 1;">
+            <div style="border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
+                <h3 style="margin-top: 0; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Orders by Status</h3>
+                <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #f0f0f0;">
+                            <th>Status</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @* Loop through each status and display order count *@
+                        @if (ordersByStatus != null)
+                        {
+                            @foreach (var item in ordersByStatus)
+                            {
+                                <tr>
+                                    <td>@item.Key</td>
+                                    <td>@item.Value</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

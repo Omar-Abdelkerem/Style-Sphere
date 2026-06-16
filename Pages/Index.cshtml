@@ -1,0 +1,91 @@
+﻿@page
+@model StyleSphere.Pages.IndexModel
+@{
+    // Set the page title
+    ViewData["Title"] = "Home - StyleSphere";
+    Layout = "_CustomerLayout";
+    
+    // Get the products from ViewData (set in the .cs file)
+    // Cast it to a list of Product objects
+    var products = ViewData["Products"] as List<StyleSphere.Models.Product>;
+}
+
+<div class="hero-section">
+    <h1>Welcome to StyleSphere</h1>
+    <p>Discover the latest fashion trends and find your perfect style</p>
+    <a asp-page="/Products" class="btn">Shop Now</a>
+</div>
+
+<section class="products-section">
+    <h1>Featured Products</h1>
+    
+    @* Check if we have any products to display *@
+    @if (products != null && products.Count > 0)
+    {
+        <div class="product-grid">
+            @* Loop through each product and display it *@
+            @foreach (var product in products)
+            {
+                <div class="product-card">
+                    @* Link to product details page *@
+                    <a asp-page="/details" asp-route-id="@product.ProductID">
+                        @* Display product image if it exists *@
+                        @* Display product image if it exists *@
+                        @if (!string.IsNullOrEmpty(product.ImageName))
+                        {
+                            <img src="~/images/products/@product.ImageName" alt="@product.Name" />
+                        }
+                        
+                        @* Display category name *@
+                        <div class="category">
+                            @if (product.Category != null)
+                            {
+                                @product.Category.Name
+                            }
+                            else
+                            {
+                                <text>Uncategorized</text>
+                            }
+                        </div>
+                        
+                        @* Display product name *@
+                        <h3>@product.Name</h3>
+                        
+                        @* Display product price (formatted to 2 decimal places) *@
+                        <div class="product-price">$@product.Price.ToString("F2")</div>
+                        
+                        @* Display stock status *@
+                        @if (product.Stock > 0)
+                        {
+                            <span class="stock-badge in-stock">In Stock (@product.Stock)</span>
+                        }
+                        else
+                        {
+                            <span class="stock-badge out-of-stock">Out of Stock</span>
+                        }
+                    </a>
+                    
+                    @* Only show "Add to Cart" button if product is in stock *@
+                    @if (product.Stock > 0)
+                    {
+                        @* Form to add product to cart - uses POST method *@
+                        <form method="post" asp-page="/AddToCart" style="display: inline;">
+                            <input type="hidden" name="productId" value="@product.ProductID" />
+                            <input type="hidden" name="quantity" value="1" />
+                            <button type="submit" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                Add to Cart
+                            </button>
+                        </form>
+                    }
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        @* Show message if no products found *@
+        <div style="background-color: #d1ecf1; color: #0c5460; padding: 20px; border: 1px solid #bee5eb; border-radius: 4px;">
+            <p>No products available at the moment. Check back soon!</p>
+        </div>
+    }
+</section>

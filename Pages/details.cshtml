@@ -1,0 +1,142 @@
+﻿@page "{id:int}"
+@model StyleSphere.Pages.detailsModel
+@{
+    Layout = "_CustomerLayout";
+    
+    // Get data from ViewData (set in the .cs file)
+    var product = ViewData["Product"] as StyleSphere.Models.Product;
+    var reviews = ViewData["Reviews"] as List<StyleSphere.Models.Review>;
+    var averageRating = ViewData["AverageRating"] as decimal? ?? 0;
+    var reviewCount = ViewData["ReviewCount"] as int? ?? 0;
+    
+    ViewData["Title"] = product?.Name ?? "Product Details - StyleSphere";
+}
+
+@* Check if product was found *@
+@if (product == null)
+{
+    <div style="background-color: #f8d7da; color: #721c24; padding: 20px; border: 1px solid #f5c6cb; border-radius: 4px;">
+        <h2>Product Not Found</h2>
+        <p>The product you're looking for doesn't exist.</p>
+        <a asp-page="/Products" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; margin-top: 10px;">Back to Products</a>
+    </div>
+}
+else
+{
+    <div class="product-details">
+        <div class="product-content">
+            @* Display product image *@
+            <div class="product-image">
+                @* Display product image if it exists *@
+                @if (!string.IsNullOrEmpty(product.ImageName))
+                {
+                    <img src="~/images/products/@product.ImageName" alt="@product.Name" />
+                }
+            </div>
+            
+            @* Display product information *@
+            <div class="product-info">
+                <h1>@product.Name</h1>
+                
+                @* Display category *@
+                <div class="category">
+                    @if (product.Category != null)
+                    {
+                        @product.Category.Name
+                    }
+                    else
+                    {
+                        <text>Uncategorized</text>
+                    }
+                </div>
+                
+                @* Display price *@
+                <div class="price">$@product.Price.ToString("F2")</div>
+                
+                @* Display description *@
+                <div class="description">
+                    @if (!string.IsNullOrEmpty(product.Description))
+                    {
+                        @product.Description
+                    }
+                    else
+                    {
+                        <text>No description available.</text>
+                    }
+                </div>
+                
+                @* Display stock status *@
+                @if (product.Stock > 0)
+                {
+                    <div class="stock">In Stock: @product.Stock items available</div>
+                }
+                else
+                {
+                    <div class="stock" style="color: #e74c3c;">Out of Stock</div>
+                }
+                
+                @* Display average rating and review count *@
+                @if (reviewCount > 0)
+                {
+                    <div class="rating">
+                        <strong>Rating:</strong> @averageRating.ToString("F1") / 5.0 
+                        (@reviewCount @(reviewCount == 1 ? "review" : "reviews"))
+                    </div>
+                }
+                
+                @* Action buttons *@
+                <div class="product-actions" style="margin-top: 20px;">
+                    @if (product.Stock > 0)
+                    {
+                        @* Form to add product to cart - uses POST method *@
+                        <form method="post" asp-page="/AddToCart" style="display: inline; margin-right: 10px;">
+                            <input type="hidden" name="productId" value="@product.ProductID" />
+                            <input type="hidden" name="quantity" value="1" />
+                            <button type="submit" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                Add to Cart
+                            </button>
+                        </form>
+                    }
+                    <a asp-page="/AddReview" asp-route-productId="@product.ProductID" style="padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 4px; display: inline-block; margin-right: 10px;">
+                        Add Review
+                    </a>
+                    <a asp-page="/Products" style="padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">
+                        Back to Products
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        @* Display reviews section *@
+        @if (reviews != null && reviews.Count > 0)
+        {
+            <div class="reviews-section" style="margin-top: 40px;">
+                <h2>Customer Reviews</h2>
+                @* Loop through each review and display it *@
+                @foreach (var review in reviews)
+                {
+                    <div class="review-item" style="border: 1px solid #ddd; padding: 15px; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <strong>@review.User?.Name</strong>
+                            <span>Rating: @review.Rating / 5</span>
+                        </div>
+                        <div style="color: #666; font-size: 0.9em; margin-bottom: 10px;">
+                            @review.ReviewDate.ToString("MM/dd/yyyy")
+                        </div>
+                        @if (!string.IsNullOrEmpty(review.Comment))
+                        {
+                            <div>@review.Comment</div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="reviews-section" style="margin-top: 40px;">
+                <h2>Customer Reviews</h2>
+                <p>No reviews yet. Be the first to review this product!</p>
+            </div>
+        }
+    </div>
+}

@@ -1,0 +1,89 @@
+@page
+@model StyleSphere.Pages.Admin.Products.IndexModel
+@{
+    ViewData["Title"] = "Products Management";
+    
+    // Get products from ViewData (set in the .cs file)
+    var products = ViewData["Products"] as List<StyleSphere.Models.Product>;
+}
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Products Management</h1>
+        <a asp-page="Create" style="padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">Create New Product</a>
+    </div>
+
+    @* Display products in a table *@
+    @if (products != null && products.Count > 0)
+    {
+        <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #f0f0f0;">
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @* Loop through each product and display it in a table row *@
+                @foreach (var product in products)
+                {
+                    <tr>
+                        <td>@product.ProductID</td>
+                        <td>
+                            @* Display product image if available *@
+                            @if (!string.IsNullOrEmpty(product.ImageName))
+                            {
+                                <img src="~/images/products/@product.ImageName" alt="@product.Name" style="width: 50px; height: 50px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <span style="color: #6c757d;">No Image</span>
+                            }
+                        </td>
+                        <td>@product.Name</td>
+                        <td>
+                            @* Display category name if available *@
+                            @if (product.Category != null)
+                            {
+                                @product.Category.Name
+                            }
+                            else
+                            {
+                                <text>N/A</text>
+                            }
+                        </td>
+                        <td>$@product.Price.ToString("F2")</td>
+                        <td>
+                            @* Display stock with color badge (green if in stock, red if out of stock) *@
+                            @if (product.Stock > 0)
+                            {
+                                <span style="background-color: #28a745; color: white; padding: 5px 10px; border-radius: 4px;">@product.Stock</span>
+                            }
+                            else
+                            {
+                                <span style="background-color: #dc3545; color: white; padding: 5px 10px; border-radius: 4px;">@product.Stock</span>
+                            }
+                        </td>
+                        <td>
+                            <a asp-page="Edit" asp-route-id="@product.ProductID" style="padding: 5px 10px; background-color: #ffc107; color: #000; text-decoration: none; border-radius: 4px; margin-right: 5px;">Edit</a>
+                            <a asp-page="Delete" asp-route-id="@product.ProductID" style="padding: 5px 10px; background-color: #dc3545; color: white; text-decoration: none; border-radius: 4px;">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        @* Show message if no products found *@
+        <div style="background-color: #d1ecf1; color: #0c5460; padding: 20px; border: 1px solid #bee5eb; border-radius: 4px;">
+            No products found. <a asp-page="Create">Create the first product</a>
+        </div>
+    }
+</div>
+

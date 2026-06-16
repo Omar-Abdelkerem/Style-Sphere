@@ -1,0 +1,53 @@
+@page
+@model StyleSphere.Pages.AddReviewModel
+@{
+    ViewData["Title"] = "Add Review";
+    
+    // Get product from ViewData (set in the .cs file)
+    var product = ViewData["Product"] as StyleSphere.Models.Product;
+}
+
+<div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+    <h1>Add Review for @product?.Name</h1>
+    <hr />
+
+    @* Display error message if review submission failed *@
+    @if (!string.IsNullOrEmpty((string?)TempData["ErrorMessage"]))
+    {
+        <div style="background-color: #f8d7da; color: #721c24; padding: 15px; margin: 10px 0; border: 1px solid #f5c6cb; border-radius: 4px;">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    @* Review form *@
+    @* When submitted, it will call OnPost method with productId, rating, and comment *@
+    <form method="post">
+        @* Hidden field to pass product ID *@
+        <input type="hidden" name="productId" value="@product?.ProductID" />
+        
+        @* Rating dropdown *@
+        <div style="margin-bottom: 15px;">
+            <label for="rating">Rating (1-5)</label><br />
+            <select name="rating" id="rating" required style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="1">1 - Poor</option>
+                <option value="2">2 - Fair</option>
+                <option value="3">3 - Good</option>
+                <option value="4">4 - Very Good</option>
+                <option value="5" selected>5 - Excellent</option>
+            </select>
+        </div>
+
+        @* Comment textarea (optional) *@
+        <div style="margin-bottom: 15px;">
+            <label for="comment">Comment (Optional)</label><br />
+            <textarea name="comment" id="comment" rows="4" placeholder="Write your review here..." style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+        </div>
+
+        @* Submit button *@
+        <div style="margin-bottom: 15px;">
+            <button type="submit" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Submit Review</button>
+            <a asp-page="/details" asp-route-id="@product?.ProductID" style="padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">Cancel</a>
+        </div>
+    </form>
+</div>
+

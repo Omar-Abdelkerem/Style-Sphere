@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - StyleSphere</title>
+    <link rel="stylesheet" href="~/css/customer.css" asp-append-version="true" />
+</head>
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <nav>
+            <a href="/" class="logo">StyleSphere</a>
+            <ul class="nav-links">
+                <li><a asp-page="/Index">Home</a></li>
+                <li><a asp-page="/Products">Products</a></li>
+                <li><a asp-page="/cart">Cart</a></li>
+                @{
+                    var userId = Context.Session.GetString("UserId");
+                    var userName = Context.Session.GetString("UserName");
+                    var userRole = Context.Session.GetString("UserRole");
+                }
+                @if (userId != null)
+                {
+                    <li>Welcome, @userName!</li>
+                    @if (userRole == "Admin")
+                    {
+                        <li><a asp-page="/Admin/Index">Admin</a></li>
+                    }
+                    <li><a asp-page="/Logout">Logout</a></li>
+                }
+                else
+                {
+                    <li><a asp-page="/login">Login</a></li>
+                    <li><a asp-page="/Register">Register</a></li>
+                }
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        @* Display success messages *@
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div style="background-color: #d4edda; color: #155724; padding: 15px; margin: 10px 0; border: 1px solid #c3e6cb; border-radius: 4px;">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+        @* Display error messages *@
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div style="background-color: #f8d7da; color: #721c24; padding: 15px; margin: 10px 0; border: 1px solid #f5c6cb; border-radius: 4px;">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+        @RenderBody()
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <p>&copy; 2025 StyleSphere. All rights reserved.</p>
+    </footer>
+</body>
+</html>
+

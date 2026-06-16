@@ -1,0 +1,127 @@
+﻿@page
+@model StyleSphere.Pages.cartModel
+@{
+    ViewData["Title"] = "Shopping Cart - StyleSphere";
+    Layout = "_CustomerLayout";
+    
+    // Get data from ViewData (set in the .cs file)
+    var cart = ViewData["Cart"] as StyleSphere.Models.Cart;
+    var subtotal = ViewData["Subtotal"] as decimal? ?? 0;
+    var tax = ViewData["Tax"] as decimal? ?? 0;
+    var total = ViewData["Total"] as decimal? ?? 0;
+}
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+    <h1>Shopping Cart</h1>
+    <hr />
+
+    @* Display success or error messages *@
+    @if (!string.IsNullOrEmpty((string?)TempData["SuccessMessage"]))
+    {
+        <div style="background-color: #d4edda; color: #155724; padding: 15px; margin: 10px 0; border: 1px solid #c3e6cb; border-radius: 4px;">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (!string.IsNullOrEmpty((string?)TempData["ErrorMessage"]))
+    {
+        <div style="background-color: #f8d7da; color: #721c24; padding: 15px; margin: 10px 0; border: 1px solid #f5c6cb; border-radius: 4px;">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    @* Check if cart has items *@
+    @if (cart != null && cart.CartItems != null && cart.CartItems.Count > 0)
+    {
+        <div style="display: flex; gap: 20px;">
+            @* Left side: Cart items table *@
+            <div style="flex: 2;">
+                <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #f0f0f0;">
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @* Loop through each cart item and display it in a table row *@
+                        @foreach (var item in cart.CartItems)
+                        {
+                            <tr>
+                                <td>
+                                    @* Display product image if available *@
+                                    @if (!string.IsNullOrEmpty(item.Product?.ImageName))
+                                    {
+                                        <img src="~/images/products/@item.Product.ImageName" alt="@item.Product.Name" style="width: 50px; height: 50px;" />
+                                    }
+                                    @* Display product name *@
+                                    @item.Product?.Name
+                                </td>
+                                <td>$@item.Product?.Price.ToString("F2")</td>
+                                <td>
+                                    @* Form to update quantity *@
+                                    @* When submitted, calls OnPostUpdateQuantity method *@
+                                    <form method="post" asp-page-handler="UpdateQuantity" style="display: inline;">
+                                        <input type="hidden" name="productId" value="@item.ProductID" />
+                                        <input type="number" name="quantity" value="@item.Quantity" min="1" max="@item.Product?.Stock" style="width: 60px; padding: 5px;" />
+                                        <button type="submit" style="padding: 5px 10px; background-color: #007bff; color: white; border: none; cursor: pointer;">Update</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    @* Calculate and display item total (price * quantity) *@
+                                    $@((item.Product?.Price ?? 0) * item.Quantity).ToString("F2")
+                                </td>
+                                <td>
+                                    @* Form to remove item *@
+                                    @* When submitted, calls OnPostRemove method *@
+                                    <form method="post" asp-page-handler="Remove" style="display: inline;">
+                                        <input type="hidden" name="productId" value="@item.ProductID" />
+                                        <button type="submit" style="padding: 5px 10px; background-color: #dc3545; color: white; border: none; cursor: pointer;">Remove</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            
+            @* Right side: Order summary *@
+            <div style="flex: 1;">
+                <div style="border: 1px solid #ddd; padding: 15px;">
+                    <h3 style="margin-top: 0;">Order Summary</h3>
+                    @* Display subtotal *@
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Subtotal:</span>
+                        <span>$@subtotal.ToString("F2")</span>
+                    </div>
+                    @* Display tax *@
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Tax (14%):</span>
+                        <span>$@tax.ToString("F2")</span>
+                    </div>
+                    <hr />
+                    @* Display total *@
+                    <div style="display: flex; justify-content: space-between;">
+                        <strong>Total:</strong>
+                        <strong>$@total.ToString("F2")</strong>
+                    </div>
+                    @* Checkout button *@
+                    <div style="margin-top: 15px;">
+                        <a asp-page="/PlaceOrder" style="display: block; padding: 10px; background-color: #007bff; color: white; text-align: center; text-decoration: none; border-radius: 4px;">Proceed to Checkout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        @* Show message if cart is empty *@
+        <div style="background-color: #d1ecf1; color: #0c5460; padding: 20px; border: 1px solid #bee5eb; border-radius: 4px;">
+            <h4>Your cart is empty</h4>
+            <p>Start shopping to add items to your cart!</p>
+            <a asp-page="/Products" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; margin-top: 10px;">Browse Products</a>
+        </div>
+    }
+</div>

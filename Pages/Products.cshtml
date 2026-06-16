@@ -1,0 +1,113 @@
+﻿@page
+@model StyleSphere.Pages.ProductsModel
+@{
+    ViewData["Title"] = "Products - StyleSphere";
+    Layout = "_CustomerLayout";
+    
+    // Get data from ViewData (set in the .cs file)
+    var categories = ViewData["Categories"] as List<StyleSphere.Models.Category>;
+    var products = ViewData["Products"] as List<StyleSphere.Models.Product>;
+    var selectedCategoryId = ViewData["SelectedCategoryId"] as int?;
+}
+
+<section class="products-section">
+    <h1>All Products</h1>
+    
+    @* Category filter form *@
+    @* When user selects a category and clicks "Filter", page reloads with that category *@
+    @if (categories != null && categories.Count > 0)
+    {
+        <div style="margin-bottom: 30px; text-align: center;">
+            <form method="get" style="display: inline-block;">
+                <label for="categoryId" style="margin-right: 10px;">Filter by Category:</label>
+                <select name="categoryId" id="categoryId" style="padding: 8px;">
+                    <option value="">All Categories</option>
+                    @* Loop through categories to create dropdown options *@
+                    @foreach (var category in categories)
+                    {
+                        @* If this category is selected, mark it as selected *@
+                        if (selectedCategoryId.HasValue && category.CategoryID == selectedCategoryId.Value)
+                        {
+                            <option value="@category.CategoryID" selected>@category.Name</option>
+                        }
+                        else
+                        {
+                            <option value="@category.CategoryID">@category.Name</option>
+                        }
+                    }
+                </select>
+                <button type="submit" style="padding: 8px 15px; margin-left: 10px;">Filter</button>
+            </form>
+        </div>
+    }
+
+    @* Display products *@
+    @if (products != null && products.Count > 0)
+    {
+        <div class="product-grid">
+            @* Loop through each product and display it *@
+            @foreach (var product in products)
+            {
+                <div class="product-card">
+                    @* Link to product details page *@
+                    <a asp-page="/details" asp-route-id="@product.ProductID">
+                        @* Display product image *@
+                        @* Display product image if it exists *@
+                        @if (!string.IsNullOrEmpty(product.ImageName))
+                        {
+                            <img src="~/images/products/@product.ImageName" alt="@product.Name" />
+                        }
+                        
+                        @* Display category name *@
+                        <div class="category">
+                            @if (product.Category != null)
+                            {
+                                @product.Category.Name
+                            }
+                            else
+                            {
+                                <text>Uncategorized</text>
+                            }
+                        </div>
+                        
+                        @* Display product name *@
+                        <h3>@product.Name</h3>
+                        
+                        @* Display price *@
+                        <div class="product-price">$@product.Price.ToString("F2")</div>
+                        
+                        @* Display stock status *@
+                        @if (product.Stock > 0)
+                        {
+                            <span class="stock-badge in-stock">In Stock (@product.Stock)</span>
+                        }
+                        else
+                        {
+                            <span class="stock-badge out-of-stock">Out of Stock</span>
+                        }
+                    </a>
+                    
+                    @* Add to Cart button (only if in stock) *@
+                    @if (product.Stock > 0)
+                    {
+                        @* Form to add product to cart - uses POST method *@
+                        <form method="post" asp-page="/AddToCart" style="display: inline;">
+                            <input type="hidden" name="productId" value="@product.ProductID" />
+                            <input type="hidden" name="quantity" value="1" />
+                            <button type="submit" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                Add to Cart
+                            </button>
+                        </form>
+                    }
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        @* Show message if no products found *@
+        <div style="background-color: #d1ecf1; color: #0c5460; padding: 20px; border: 1px solid #bee5eb; border-radius: 4px;">
+            <p>No products available at the moment. Check back soon!</p>
+        </div>
+    }
+</section>

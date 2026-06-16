@@ -1,0 +1,53 @@
+@page "{id:int}"
+@model StyleSphere.Pages.Admin.Categories.EditModel
+@{
+    ViewData["Title"] = "Edit Category";
+    
+    // Get category from ViewData (set in the .cs file)
+    var category = ViewData["Category"] as StyleSphere.Models.Category;
+}
+
+<div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+    <h1>Edit Category</h1>
+    <hr />
+
+    @* Display error message if update failed *@
+    @if (ViewData["ErrorMessage"] != null)
+    {
+        <div style="background-color: #f8d7da; color: #721c24; padding: 15px; margin: 10px 0; border: 1px solid #f5c6cb; border-radius: 4px;">
+            @ViewData["ErrorMessage"]
+        </div>
+    }
+
+    @if (category != null)
+    {
+        <div>
+            @* Edit category form *@
+            @* When submitted, it will call OnPost method with categoryId, name, and description *@
+            <form method="post">
+                @* Hidden field to pass category ID *@
+                <input type="hidden" name="categoryId" value="@category.CategoryID" />
+
+                @* Category name input field *@
+                <div style="margin-bottom: 15px;">
+                    <label for="name">Category Name (Required)</label><br />
+                    <input type="text" name="name" id="name" value="@category.Name" required style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;" />
+                    <small style="color: #6c757d;">Category name must be unique.</small>
+                </div>
+
+                @* Category description textarea (optional) *@
+                <div style="margin-bottom: 15px;">
+                    <label for="description">Description (Optional)</label><br />
+                    <textarea name="description" id="description" rows="4" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">@category.Description</textarea>
+                </div>
+
+                @* Submit button *@
+                <div style="margin-bottom: 15px;">
+                    <button type="submit" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Save</button>
+                    <a asp-page="Index" style="padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    }
+</div>
+

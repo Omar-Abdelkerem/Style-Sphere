@@ -1,0 +1,44 @@
+@page
+@model StyleSphere.Pages.Admin.Categories.CreateModel
+@{
+    ViewData["Title"] = "Create Category";
+}
+
+<div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+    <h1>Create New Category</h1>
+    <hr />
+
+    @* Display error message if creation failed *@
+    @if (ViewData["ErrorMessage"] != null)
+    {
+        <div style="background-color: #f8d7da; color: #721c24; padding: 15px; margin: 10px 0; border: 1px solid #f5c6cb; border-radius: 4px;">
+            @ViewData["ErrorMessage"]
+        </div>
+    }
+
+    <div>
+        @* Create category form *@
+        @* When submitted, it will call OnPost method with name and description *@
+        <form method="post">
+            @* Category name input field *@
+            <div style="margin-bottom: 15px;">
+                <label for="name">Category Name (Required)</label><br />
+                <input type="text" name="name" id="name" required style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;" />
+                <small style="color: #6c757d;">Category name must be unique.</small>
+            </div>
+
+            @* Category description textarea (optional) *@
+            <div style="margin-bottom: 15px;">
+                <label for="description">Description (Optional)</label><br />
+                <textarea name="description" id="description" rows="4" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+            </div>
+
+            @* Submit button *@
+            <div style="margin-bottom: 15px;">
+                <button type="submit" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Create</button>
+                <a asp-page="Index" style="padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+

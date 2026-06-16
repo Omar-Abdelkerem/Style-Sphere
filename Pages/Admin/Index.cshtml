@@ -1,0 +1,57 @@
+@page
+@model StyleSphere.Pages.Admin.IndexModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    
+    // Get statistics from ViewData (set in the .cs file)
+    var totalProducts = ViewData["TotalProducts"] as int? ?? 0;
+    var totalCategories = ViewData["TotalCategories"] as int? ?? 0;
+    var totalOrders = ViewData["TotalOrders"] as int? ?? 0;
+    var totalCustomers = ViewData["TotalCustomers"] as int? ?? 0;
+}
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+    <h1 style="margin-bottom: 30px;">Admin Dashboard</h1>
+    
+    @* Display statistics *@
+    <div style="display: flex; gap: 20px; margin-bottom: 30px;">
+        <div style="flex: 1; border: 1px solid #ddd; padding: 20px; border-radius: 4px;">
+            <h3 style="margin-top: 0; font-size: 1.2em;">Total Products</h3>
+            <h2 style="margin: 10px 0;">@totalProducts</h2>
+        </div>
+        <div style="flex: 1; border: 1px solid #ddd; padding: 20px; border-radius: 4px;">
+            <h3 style="margin-top: 0; font-size: 1.2em;">Total Categories</h3>
+            <h2 style="margin: 10px 0;">@totalCategories</h2>
+        </div>
+        <div style="flex: 1; border: 1px solid #ddd; padding: 20px; border-radius: 4px;">
+            <h3 style="margin-top: 0; font-size: 1.2em;">Total Orders</h3>
+            <h2 style="margin: 10px 0;">@totalOrders</h2>
+        </div>
+        <div style="flex: 1; border: 1px solid #ddd; padding: 20px; border-radius: 4px;">
+            <h3 style="margin-top: 0; font-size: 1.2em;">Total Customers</h3>
+            <h2 style="margin: 10px 0;">@totalCustomers</h2>
+        </div>
+    </div>
+    
+    @* Management links *@
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1; border: 1px solid #ddd; padding: 20px; border-radius: 4px;">
+            <h3 style="margin-top: 0;">Categories</h3>
+            <p>Manage product categories</p>
+            <a asp-page="/Admin/Categories/Index" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">Manage Categories</a>
+        </div>
+        
+        <div style="flex: 1; border: 1px solid #ddd; padding: 20px; border-radius: 4px;">
+            <h3 style="margin-top: 0;">Products</h3>
+            <p>Manage products and inventory</p>
+            <a asp-page="/Admin/Products/Index" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">Manage Products</a>
+        </div>
+        
+        <div style="flex: 1; border: 1px solid #ddd; padding: 20px; border-radius: 4px;">
+            <h3 style="margin-top: 0;">Reports</h3>
+            <p>View reports and statistics</p>
+            <a asp-page="/Admin/Reports" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">View Reports</a>
+        </div>
+    </div>
+</div>
+

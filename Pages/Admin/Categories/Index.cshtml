@@ -2,74 +2,64 @@
 @model StyleSphere.Pages.Admin.Categories.IndexModel
 @{
     ViewData["Title"] = "Categories Management";
-    
-    // Get data from ViewData (set in the .cs file)
     var categories = ViewData["Categories"] as List<StyleSphere.Models.Category>;
     var productCounts = ViewData["ProductCounts"] as Dictionary<int, int>;
 }
 
-<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h1>Categories Management</h1>
-        <a asp-page="Create" style="padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">Create New Category</a>
+<div class="py-2">
+    <div class="d-flex justify-content-between align-items-baseline mb-4 pb-2 border-bottom">
+        <div>
+            <h1 class="h3 fw-bold mb-1 text-uppercase letter-spacing-1">Categories</h1>
+            <span class="text-secondary small">Department classification management</span>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-page="Create" class="btn btn-sm btn-solid">Add Category</a>
+            <a asp-page="/Admin/Index" class="btn btn-sm btn-outline-minimal">Dashboard</a>
+        </div>
     </div>
 
-    @* Display categories in a table *@
     @if (categories != null && categories.Count > 0)
     {
-        <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
-            <thead>
-                <tr style="background-color: #f0f0f0;">
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Products Count</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @* Loop through each category and display it in a table row *@
-                @foreach (var category in categories)
-                {
+        <div class="table-responsive">
+            <table class="table-minimal align-middle">
+                <thead>
                     <tr>
-                        <td>@category.CategoryID</td>
-                        <td>@category.Name</td>
-                        <td>
-                            @if (!string.IsNullOrEmpty(category.Description))
-                            {
-                                @category.Description
-                            }
-                            else
-                            {
-                                <text>N/A</text>
-                            }
-                        </td>
-                        <td>
-                            @* Get product count for this category from dictionary *@
-                            @if (productCounts != null && productCounts.ContainsKey(category.CategoryID))
-                            {
-                                @productCounts[category.CategoryID]
-                            }
-                            else
-                            {
-                                <text>0</text>
-                            }
-                        </td>
-                        <td>
-                            <a asp-page="Edit" asp-route-id="@category.CategoryID" style="padding: 5px 10px; background-color: #ffc107; color: #000; text-decoration: none; border-radius: 4px; margin-right: 5px;">Edit</a>
-                            <a asp-page="Delete" asp-route-id="@category.CategoryID" style="padding: 5px 10px; background-color: #dc3545; color: white; text-decoration: none; border-radius: 4px;">Delete</a>
-                        </td>
+                        <th style="width: 70px;">ID</th>
+                        <th>Category Name</th>
+                        <th>Description</th>
+                        <th>Products</th>
+                        <th class="text-end" style="width: 140px;">Actions</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    }
-    else
-    {
-        @* Show message if no categories found *@
-        <div style="background-color: #d1ecf1; color: #0c5460; padding: 20px; border: 1px solid #bee5eb; border-radius: 4px;">
-            No categories found. <a asp-page="Create">Create the first category</a>
+                </thead>
+                <tbody>
+                    @foreach (var category in categories)
+                    {
+                        var count = (productCounts != null && productCounts.ContainsKey(category.CategoryID)) ? productCounts[category.CategoryID] : 0;
+                        <tr>
+                            <td class="text-secondary">#@category.CategoryID</td>
+                            <td>
+                                <div class="fw-bold text-dark">@category.Name</div>
+                            </td>
+                            <td>
+                                <span class="text-secondary small">@(!string.IsNullOrEmpty(category.Description) ? category.Description : "None")</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border rounded-0 px-2 py-1">
+                                    @count items
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <a asp-page="Edit" asp-route-id="@category.CategoryID" class="btn btn-sm btn-outline-dark rounded-0 px-2 py-1 small">
+                                    Edit
+                                </a>
+                                <a asp-page="Delete" asp-route-id="@category.CategoryID" class="btn btn-sm btn-link text-danger text-decoration-none p-0 ms-2 small">
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     }
 </div>
-

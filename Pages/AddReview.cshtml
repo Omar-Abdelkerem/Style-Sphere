@@ -1,53 +1,53 @@
 @page
 @model StyleSphere.Pages.AddReviewModel
 @{
-    ViewData["Title"] = "Add Review";
-    
-    // Get product from ViewData (set in the .cs file)
+    ViewData["Title"] = "Customer Review - StyleSphere";
+    Layout = "_CustomerLayout";
     var product = ViewData["Product"] as StyleSphere.Models.Product;
 }
 
-<div style="max-width: 800px; margin: 0 auto; padding: 20px;">
-    <h1>Add Review for @product?.Name</h1>
-    <hr />
+<div class="container py-5">
+    <div style="max-width: 520px; margin: 30px auto;">
+        <div class="clean-card">
+            <h1 class="h4 fw-bold text-center mb-1 text-uppercase letter-spacing-1">Product Review</h1>
+            <p class="text-secondary small text-center mb-4">Sharing feedback for <strong>@product?.Name</strong></p>
 
-    @* Display error message if review submission failed *@
-    @if (!string.IsNullOrEmpty((string?)TempData["ErrorMessage"]))
-    {
-        <div style="background-color: #f8d7da; color: #721c24; padding: 15px; margin: 10px 0; border: 1px solid #f5c6cb; border-radius: 4px;">
-            @TempData["ErrorMessage"]
-        </div>
-    }
+            @if (!string.IsNullOrEmpty((string?)TempData["ErrorMessage"]))
+            {
+                <div class="alert alert-danger rounded-0 py-2 px-3 small mb-3" role="alert">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
 
-    @* Review form *@
-    @* When submitted, it will call OnPost method with productId, rating, and comment *@
-    <form method="post">
-        @* Hidden field to pass product ID *@
-        <input type="hidden" name="productId" value="@product?.ProductID" />
-        
-        @* Rating dropdown *@
-        <div style="margin-bottom: 15px;">
-            <label for="rating">Rating (1-5)</label><br />
-            <select name="rating" id="rating" required style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
-                <option value="1">1 - Poor</option>
-                <option value="2">2 - Fair</option>
-                <option value="3">3 - Good</option>
-                <option value="4">4 - Very Good</option>
-                <option value="5" selected>5 - Excellent</option>
-            </select>
-        </div>
+            <form method="post">
+                <input type="hidden" name="productId" value="@product?.ProductID" />
+                
+                <div class="mb-3">
+                    <label for="rating" class="form-label">Score (1 to 5)</label>
+                    <select name="rating" id="rating" class="form-select rounded-0" required>
+                        <option value="5" selected>5 - Excellent Quality</option>
+                        <option value="4">4 - Very Good</option>
+                        <option value="3">3 - Satisfactory</option>
+                        <option value="2">2 - Below Expectations</option>
+                        <option value="1">1 - Poor</option>
+                    </select>
+                </div>
 
-        @* Comment textarea (optional) *@
-        <div style="margin-bottom: 15px;">
-            <label for="comment">Comment (Optional)</label><br />
-            <textarea name="comment" id="comment" rows="4" placeholder="Write your review here..." style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
-        </div>
+                <div class="mb-4">
+                    <label for="comment" class="form-label">Written Feedback (Optional)</label>
+                    <textarea name="comment" id="comment" rows="4" class="form-control rounded-0" 
+                              placeholder="Provide details about fit, texture, and durability..."></textarea>
+                </div>
 
-        @* Submit button *@
-        <div style="margin-bottom: 15px;">
-            <button type="submit" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Submit Review</button>
-            <a asp-page="/details" asp-route-id="@product?.ProductID" style="padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">Cancel</a>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-solid flex-grow-1 py-3">
+                        Submit Review
+                    </button>
+                    <a asp-page="/details" asp-route-id="@product?.ProductID" class="btn btn-outline-minimal py-3 px-4">
+                        Cancel
+                    </a>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
-

@@ -1,0 +1,15 @@
+services:
+  stylesphere:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    volumes:
+      - stylesphere-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  stylesphere-data:

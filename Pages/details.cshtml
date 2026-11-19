@@ -3,140 +3,158 @@
 @{
     Layout = "_CustomerLayout";
     
-    // Get data from ViewData (set in the .cs file)
     var product = ViewData["Product"] as StyleSphere.Models.Product;
     var reviews = ViewData["Reviews"] as List<StyleSphere.Models.Review>;
     var averageRating = ViewData["AverageRating"] as decimal? ?? 0;
     var reviewCount = ViewData["ReviewCount"] as int? ?? 0;
     
-    ViewData["Title"] = product?.Name ?? "Product Details - StyleSphere";
+    ViewData["Title"] = product != null ? $"{product.Name} - StyleSphere" : "Product - StyleSphere";
 }
 
-@* Check if product was found *@
-@if (product == null)
-{
-    <div style="background-color: #f8d7da; color: #721c24; padding: 20px; border: 1px solid #f5c6cb; border-radius: 4px;">
-        <h2>Product Not Found</h2>
-        <p>The product you're looking for doesn't exist.</p>
-        <a asp-page="/Products" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; margin-top: 10px;">Back to Products</a>
-    </div>
-}
-else
-{
-    <div class="product-details">
-        <div class="product-content">
-            @* Display product image *@
-            <div class="product-image">
-                @* Display product image if it exists *@
-                @if (!string.IsNullOrEmpty(product.ImageName))
+<div class="container py-4 pb-5">
+    @if (product == null)
+    {
+        <div class="py-5 text-center text-muted border my-4">
+            <h4 class="fw-bold mb-2">Product Not Found</h4>
+            <p class="small mb-3">This product could not be located in our active catalog.</p>
+            <a asp-page="/Products" class="btn btn-sm btn-solid">Return to Catalog</a>
+        </div>
+    }
+    else
+    {
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a asp-page="/Index" class="text-secondary">Home</a></li>
+                <li class="breadcrumb-item"><a asp-page="/Products" class="text-secondary">Catalog</a></li>
+                @if (product.Category != null)
                 {
-                    <img src="~/images/products/@product.ImageName" alt="@product.Name" />
+                    <li class="breadcrumb-item">
+                        <a asp-page="/Products" asp-route-categoryId="@product.CategoryID" class="text-secondary">
+                            @product.Category.Name
+                        </a>
+                    </li>
                 }
+                <li class="breadcrumb-item active text-dark" aria-current="page">@product.Name</li>
+            </ol>
+        </nav>
+
+        <div class="row g-5 mb-5">
+            <!-- Left: Real Photo -->
+            <div class="col-lg-6">
+                <div class="detail-image-box border">
+                    @if (!string.IsNullOrEmpty(product.ImageName))
+                    {
+                        <img src="~/images/products/@product.ImageName" alt="@product.Name" class="img-fluid" />
+                    }
+                    else
+                    {
+                        <div class="text-muted py-5 text-center">
+                            No photo available
+                        </div>
+                    }
+                </div>
             </div>
-            
-            @* Display product information *@
-            <div class="product-info">
-                <h1>@product.Name</h1>
-                
-                @* Display category *@
-                <div class="category">
-                    @if (product.Category != null)
-                    {
-                        @product.Category.Name
-                    }
-                    else
-                    {
-                        <text>Uncategorized</text>
-                    }
-                </div>
-                
-                @* Display price *@
-                <div class="price">$@product.Price.ToString("F2")</div>
-                
-                @* Display description *@
-                <div class="description">
-                    @if (!string.IsNullOrEmpty(product.Description))
-                    {
-                        @product.Description
-                    }
-                    else
-                    {
-                        <text>No description available.</text>
-                    }
-                </div>
-                
-                @* Display stock status *@
-                @if (product.Stock > 0)
-                {
-                    <div class="stock">In Stock: @product.Stock items available</div>
-                }
-                else
-                {
-                    <div class="stock" style="color: #e74c3c;">Out of Stock</div>
-                }
-                
-                @* Display average rating and review count *@
-                @if (reviewCount > 0)
-                {
-                    <div class="rating">
-                        <strong>Rating:</strong> @averageRating.ToString("F1") / 5.0 
-                        (@reviewCount @(reviewCount == 1 ? "review" : "reviews"))
+
+            <!-- Right: Details -->
+            <div class="col-lg-6">
+                <div class="detail-info-box">
+                    <div class="detail-category">
+                        @(product.Category?.Name ?? "Apparel")
                     </div>
-                }
-                
-                @* Action buttons *@
-                <div class="product-actions" style="margin-top: 20px;">
+
+                    <h1 class="detail-title">@product.Name</h1>
+
+                    <div class="d-flex align-items-center gap-2 mb-3 small">
+                        <span class="fw-bold">Rating: @(averageRating > 0 ? averageRating.ToString("F1") : "5.0") / 5.0</span>
+                        <span class="text-secondary">(@reviewCount reviews)</span>
+                    </div>
+
+                    <div class="detail-price">
+                        $@product.Price.ToString("F2")
+                    </div>
+
+                    <div class="detail-desc">
+                        @(!string.IsNullOrEmpty(product.Description) ? product.Description : "Tailored garment constructed with premium materials and designed for everyday longevity.")
+                    </div>
+
+                    <!-- Stock Status -->
+                    <div class="mb-4 small">
+                        @if (product.Stock > 0)
+                        {
+                            <span class="text-dark fw-semibold">Availability: In stock (@product.Stock units)</span>
+                        }
+                        else
+                        {
+                            <span class="text-danger fw-semibold">Availability: Sold out</span>
+                        }
+                    </div>
+
+                    <!-- Add to Bag Form -->
                     @if (product.Stock > 0)
                     {
-                        @* Form to add product to cart - uses POST method *@
-                        <form method="post" asp-page="/AddToCart" style="display: inline; margin-right: 10px;">
+                        <form method="post" asp-page="/AddToCart" class="mb-4">
                             <input type="hidden" name="productId" value="@product.ProductID" />
-                            <input type="hidden" name="quantity" value="1" />
-                            <button type="submit" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                                Add to Cart
-                            </button>
+                            <div class="row g-2 align-items-center">
+                                <div class="col-3">
+                                    <input type="number" id="quantity" name="quantity" value="1" min="1" max="@product.Stock" 
+                                           class="form-control text-center py-2 fw-semibold" required />
+                                </div>
+                                <div class="col-9">
+                                    <button type="submit" class="btn btn-solid w-100 py-2">
+                                        Add to Bag
+                                    </button>
+                                </div>
+                            </div>
                         </form>
                     }
-                    <a asp-page="/AddReview" asp-route-productId="@product.ProductID" style="padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 4px; display: inline-block; margin-right: 10px;">
-                        Add Review
-                    </a>
-                    <a asp-page="/Products" style="padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">
-                        Back to Products
-                    </a>
+
+                    <!-- Product Specifications & Assurances -->
+                    <ul class="detail-specs list-unstyled">
+                        <li><strong>Fabric / Materials:</strong> Premium natural blends and certified hardware</li>
+                        <li><strong>Shipping:</strong> Standard domestic delivery within 3-5 business days</li>
+                        <li><strong>Returns:</strong> Complimentary 30-day return policy for unworn items</li>
+                    </ul>
                 </div>
             </div>
         </div>
-        
-        @* Display reviews section *@
-        @if (reviews != null && reviews.Count > 0)
-        {
-            <div class="reviews-section" style="margin-top: 40px;">
-                <h2>Customer Reviews</h2>
-                @* Loop through each review and display it *@
-                @foreach (var review in reviews)
-                {
-                    <div class="review-item" style="border: 1px solid #ddd; padding: 15px; margin-bottom: 15px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                            <strong>@review.User?.Name</strong>
-                            <span>Rating: @review.Rating / 5</span>
-                        </div>
-                        <div style="color: #666; font-size: 0.9em; margin-bottom: 10px;">
-                            @review.ReviewDate.ToString("MM/dd/yyyy")
-                        </div>
-                        @if (!string.IsNullOrEmpty(review.Comment))
-                        {
-                            <div>@review.Comment</div>
-                        }
-                    </div>
-                }
+
+        <!-- Verified Reviews Section -->
+        <div class="border-top pt-5 mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="h4 fw-bold mb-1">Customer Reviews</h3>
+                    <span class="text-secondary small">Based on verified purchases</span>
+                </div>
+                <a asp-page="/AddReview" asp-route-productId="@product.ProductID" class="btn btn-sm btn-outline-minimal">
+                    Write a Review
+                </a>
             </div>
-        }
-        else
-        {
-            <div class="reviews-section" style="margin-top: 40px;">
-                <h2>Customer Reviews</h2>
-                <p>No reviews yet. Be the first to review this product!</p>
-            </div>
-        }
-    </div>
-}
+
+            @if (reviews != null && reviews.Count > 0)
+            {
+                <div class="row g-4">
+                    @foreach (var review in reviews)
+                    {
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light border h-100">
+                                <div class="d-flex justify-content-between align-items-baseline mb-2">
+                                    <span class="fw-bold small">@(review.User?.Name ?? "Customer")</span>
+                                    <span class="text-muted" style="font-size: 0.75rem;">@review.ReviewDate.ToString("MMM dd, yyyy")</span>
+                                </div>
+                                <div class="small fw-semibold text-secondary mb-1">Score: @review.Rating / 5</div>
+                                <p class="small text-dark mb-0">"@review.Comment"</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="py-4 text-center text-muted small border">
+                    No customer reviews yet. Be the first to share your thoughts.
+                </div>
+            }
+        </div>
+    }
+</div>

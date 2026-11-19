@@ -2,74 +2,54 @@
 @model StyleSphere.Pages.Admin.Categories.DeleteModel
 @{
     ViewData["Title"] = "Delete Category";
-    
-    // Get category from ViewData (set in the .cs file)
     var category = ViewData["Category"] as StyleSphere.Models.Category;
 }
 
-<div style="max-width: 800px; margin: 0 auto; padding: 20px;">
-    <h1>Delete Category</h1>
-    <hr />
+<div class="py-2" style="max-width: 700px; margin: 0 auto;">
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a asp-page="/Admin/Index" class="text-decoration-none">Admin</a></li>
+                    <li class="breadcrumb-item"><a asp-page="Index" class="text-decoration-none">Categories</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Delete Category</li>
+                </ol>
+            </nav>
+            <h1 class="h2 fw-bold mb-0 text-danger">Remove Category</h1>
+        </div>
+        <a asp-page="Index" class="btn btn-outline-secondary rounded-pill px-3 py-2 btn-sm fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Cancel
+        </a>
+    </div>
 
     @if (category != null)
     {
-        <h3>Are you sure you want to delete this category?</h3>
-        
-        @* Display category information *@
-        <div>
-            <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-                <tr>
-                    <th style="background-color: #f0f0f0;">Category ID:</th>
-                    <td>@category.CategoryID</td>
-                </tr>
-                <tr>
-                    <th style="background-color: #f0f0f0;">Name:</th>
-                    <td>@category.Name</td>
-                </tr>
-                <tr>
-                    <th style="background-color: #f0f0f0;">Description:</th>
-                    <td>
-                        @if (!string.IsNullOrEmpty(category.Description))
-                        {
-                            @category.Description
-                        }
-                        else
-                        {
-                            <text>N/A</text>
-                        }
-                    </td>
-                </tr>
-                <tr>
-                    <th style="background-color: #f0f0f0;">Products Count:</th>
-                    <td>
-                        @if (category.Products != null)
-                        {
-                            @category.Products.Count
-                        }
-                        else
-                        {
-                            <text>0</text>
-                        }
-                    </td>
-                </tr>
-            </table>
-
-            @* Show warning if category has products *@
-            @if (category.Products != null && category.Products.Count > 0)
-            {
-                <div style="background-color: #fff3cd; color: #856404; padding: 15px; margin: 10px 0; border: 1px solid #ffeaa7; border-radius: 4px;">
-                    <strong>Warning!</strong> This category has @category.Products.Count product(s). Deleting this category may affect those products.
+        <div class="card border-0 rounded-4 shadow-sm p-4 p-md-5">
+            <div class="alert alert-danger rounded-4 d-flex align-items-center gap-3 p-3 mb-4">
+                <i class="bi bi-exclamation-triangle-fill fs-2"></i>
+                <div>
+                    <h5 class="fw-bold mb-1">Confirm Permanent Deletion</h5>
+                    <p class="small mb-0">Are you sure you want to remove <strong>@category.Name</strong>? Associated products may become unassigned.</p>
                 </div>
-            }
+            </div>
 
-            @* Delete form *@
-            @* When submitted, it will call OnPost method with id *@
-            <form method="post">
+            <div class="p-3 bg-light rounded-4 mb-4 border">
+                <h5 class="fw-bold mb-1">@category.Name</h5>
+                <div class="text-muted small mb-2">@(!string.IsNullOrEmpty(category.Description) ? category.Description : "No description")</div>
+                <div class="small">
+                    Assigned Catalog Items: <span class="badge bg-primary-subtle text-primary rounded-pill">@(category.Products?.Count ?? 0) products</span>
+                </div>
+            </div>
+
+            <form method="post" class="d-flex gap-2">
                 <input type="hidden" name="id" value="@category.CategoryID" />
-                <button type="submit" style="padding: 10px 20px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Delete</button>
-                <a asp-page="Index" style="padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">Cancel</a>
+                <button type="submit" class="btn btn-danger rounded-pill px-4 py-2 fw-semibold">
+                    <i class="bi bi-trash3 me-1"></i> Delete Category
+                </button>
+                <a asp-page="Index" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold">
+                    Cancel
+                </a>
             </form>
         </div>
     }
 </div>
-

@@ -3,58 +3,68 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - StyleSphere</title>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <style>
-        /* Simple plain HTML styles - no Bootstrap */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        nav {
-            background-color: #f8f9fa;
-            padding: 10px 20px;
-            border-bottom: 1px solid #ddd;
-        }
-        nav a {
-            text-decoration: none;
-            color: #333;
-            margin-right: 20px;
-        }
-        nav a:hover {
-            color: #007bff;
-        }
-        footer {
-            border-top: 1px solid #ddd;
-            padding: 20px;
-            text-align: center;
-            margin-top: 40px;
-        }
-    </style>
+    <title>@ViewData["Title"] - StyleSphere Management</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- Clean Minimalist Style -->
+    <link rel="stylesheet" href="~/css/customer.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav>
-            <a asp-page="/Index">StyleSphere</a>
-            <a asp-page="/Index">Home</a>
-            <a asp-page="/Products">Products</a>
-            <a asp-page="/Admin/Index">Admin</a>
-        </nav>
-    </header>
-    <div class="container">
-        <main>
-            @RenderBody()
-        </main>
-    </div>
+<body class="d-flex flex-column min-vh-100 bg-white">
+    <!-- Admin Navigation Header -->
+    <header class="site-header">
+        <div class="container py-3">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <a class="brand-text text-decoration-none" asp-page="/Admin/Index">
+                    STYLESPHERE <span class="badge bg-dark rounded-0 fs-7 align-middle ms-1">ADMIN</span>
+                </a>
 
-    <footer>
-        <p>&copy; 2025 - StyleSphere</p>
+                <nav class="d-inline-flex gap-1">
+                    <a class="nav-link @(ViewContext.RouteData.Values["page"]?.ToString() == "/Admin/Index" ? "active" : "")" asp-page="/Admin/Index">Dashboard</a>
+                    <a class="nav-link @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("/Admin/Categories") == true ? "active" : "")" asp-page="/Admin/Categories/Index">Categories</a>
+                    <a class="nav-link @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("/Admin/Products") == true ? "active" : "")" asp-page="/Admin/Products/Index">Products</a>
+                    <a class="nav-link @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("/Admin/Users") == true ? "active" : "")" asp-page="/Admin/Users/Index">Users</a>
+                    <a class="nav-link @(ViewContext.RouteData.Values["page"]?.ToString() == "/Admin/Reports" ? "active" : "")" asp-page="/Admin/Reports">Reports</a>
+                </nav>
+
+                <div class="d-flex align-items-center gap-2">
+                    <a asp-page="/Index" class="btn btn-sm btn-outline-minimal">Storefront</a>
+                    <a asp-page="/Logout" class="btn btn-sm btn-solid">Sign Out</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1 py-4">
+        <div class="container">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-dark rounded-0 py-2 px-3 small my-3" role="alert">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger rounded-0 py-2 px-3 small my-3" role="alert">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+
+            @RenderBody()
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-top py-3 text-center small text-muted">
+        <div class="container d-flex justify-content-between align-items-center">
+            <span>&copy; 2026 StyleSphere Management Console</span>
+            <span>Internal Access Only</span>
+        </div>
     </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

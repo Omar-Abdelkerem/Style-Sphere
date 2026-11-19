@@ -4,63 +4,171 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - StyleSphere</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Clean Minimalist Style -->
     <link rel="stylesheet" href="~/css/customer.css" asp-append-version="true" />
 </head>
-<body>
-    <!-- Header -->
+<body class="d-flex flex-column min-vh-100">
+    <!-- Clean Top Announcement -->
+    <div class="top-announcement-bar text-center">
+        <div class="container d-flex justify-content-between align-items-center">
+            <span>Complimentary shipping on orders over $50</span>
+            <div class="d-none d-md-flex gap-4">
+                <span>Free 30-Day Returns</span>
+                <span>Authentic Quality Guaranteed</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation Header -->
     <header class="site-header">
-        <nav>
-            <a href="/" class="logo">StyleSphere</a>
-            <ul class="nav-links">
-                <li><a asp-page="/Index">Home</a></li>
-                <li><a asp-page="/Products">Products</a></li>
-                <li><a asp-page="/cart">Cart</a></li>
-                @{
-                    var userId = Context.Session.GetString("UserId");
-                    var userName = Context.Session.GetString("UserName");
-                    var userRole = Context.Session.GetString("UserRole");
-                }
-                @if (userId != null)
-                {
-                    <li>Welcome, @userName!</li>
-                    @if (userRole == "Admin")
-                    {
-                        <li><a asp-page="/Admin/Index">Admin</a></li>
+        <div class="container py-3">
+            <div class="row align-items-center">
+                <!-- Brand Logo -->
+                <div class="col-lg-3 col-md-4 col-6">
+                    <a asp-page="/Index" class="brand-text text-decoration-none">
+                        STYLESPHERE
+                    </a>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="col-lg-6 col-md-8 d-none d-lg-block text-center">
+                    <nav class="d-inline-flex gap-1">
+                        <a asp-page="/Index" class="nav-link @(ViewContext.RouteData.Values["page"]?.ToString() == "/Index" ? "active" : "")">Home</a>
+                        <a asp-page="/Products" class="nav-link @(ViewContext.RouteData.Values["page"]?.ToString() == "/Products" && ViewContext.HttpContext.Request.Query["categoryId"].Count == 0 ? "active" : "")">All</a>
+                        <a asp-page="/Products" asp-route-categoryId="1" class="nav-link @(ViewContext.HttpContext.Request.Query["categoryId"] == "1" ? "active" : "")">Men</a>
+                        <a asp-page="/Products" asp-route-categoryId="2" class="nav-link @(ViewContext.HttpContext.Request.Query["categoryId"] == "2" ? "active" : "")">Women</a>
+                        <a asp-page="/Products" asp-route-categoryId="3" class="nav-link @(ViewContext.HttpContext.Request.Query["categoryId"] == "3" ? "active" : "")">Shoes</a>
+                        <a asp-page="/Products" asp-route-categoryId="4" class="nav-link @(ViewContext.HttpContext.Request.Query["categoryId"] == "4" ? "active" : "")">Accessories</a>
+                    </nav>
+                </div>
+
+                <!-- Search and Account Actions -->
+                <div class="col-lg-3 col-md-8 col-6 d-flex align-items-center justify-content-end gap-3">
+                    <!-- Search Input -->
+                    <form method="get" asp-page="/Products" class="d-none d-xl-block">
+                        <input type="text" name="search" class="search-input" placeholder="Search..." style="width: 140px;" />
+                    </form>
+
+                    @{
+                        var userId = Context.Session.GetString("UserId");
+                        var userName = Context.Session.GetString("UserName");
+                        var userRole = Context.Session.GetString("UserRole");
                     }
-                    <li><a asp-page="/Logout">Logout</a></li>
-                }
-                else
-                {
-                    <li><a asp-page="/login">Login</a></li>
-                    <li><a asp-page="/Register">Register</a></li>
-                }
-            </ul>
-        </nav>
+
+                    @if (!string.IsNullOrEmpty(userId))
+                    {
+                        <div class="dropdown">
+                            <a href="#" class="nav-link dropdown-toggle text-dark p-0" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                                @userName
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end border rounded-0 shadow-sm py-2" aria-labelledby="userMenu">
+                                <li><a class="dropdown-item small py-2" asp-page="/Orders">Orders</a></li>
+                                <li><a class="dropdown-item small py-2" asp-page="/ChangePassword">Password</a></li>
+                                @if (userRole == "Admin")
+                                {
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item small py-2 text-danger" asp-page="/Admin/Index">Admin Portal</a></li>
+                                }
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item small py-2" asp-page="/Logout">Sign Out</a></li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <a asp-page="/login" class="nav-link p-0">Sign In</a>
+                    }
+
+                    <!-- Bag Button -->
+                    <a asp-page="/cart" class="btn-icon-link" title="Shopping Bag">
+                        <i class="bi bi-bag"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
     </header>
 
-    <!-- Main Content -->
-    <main>
-        @* Display success messages *@
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div style="background-color: #d4edda; color: #155724; padding: 15px; margin: 10px 0; border: 1px solid #c3e6cb; border-radius: 4px;">
-                @TempData["SuccessMessage"]
-            </div>
-        }
-        @* Display error messages *@
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <div style="background-color: #f8d7da; color: #721c24; padding: 15px; margin: 10px 0; border: 1px solid #f5c6cb; border-radius: 4px;">
-                @TempData["ErrorMessage"]
-            </div>
-        }
+    <!-- Main Container -->
+    <main class="flex-grow-1">
+        <div class="container my-2">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-dark border-0 rounded-0 py-2 px-3 small my-3" role="alert">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger border-0 rounded-0 py-2 px-3 small my-3" role="alert">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+        </div>
+
         @RenderBody()
     </main>
 
-    <!-- Footer -->
-    <footer class="site-footer">
-        <p>&copy; 2025 StyleSphere. All rights reserved.</p>
+    <!-- Clean Editorial Footer -->
+    <footer class="site-footer-minimal mt-auto">
+        <div class="container pb-5">
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="footer-col-title">STYLESPHERE</div>
+                    <p class="text-secondary small leading-relaxed">
+                        Curated ready-to-wear, footwear, and accessories. Designed with an emphasis on craftsmanship, understated silhouette, and enduring materials.
+                    </p>
+                </div>
+
+                <div class="col-lg-3 col-6">
+                    <div class="footer-col-title">Collections</div>
+                    <ul class="footer-menu">
+                        <li><a asp-page="/Products" asp-route-categoryId="1">Men's Wardrobe</a></li>
+                        <li><a asp-page="/Products" asp-route-categoryId="2">Women's Collection</a></li>
+                        <li><a asp-page="/Products" asp-route-categoryId="3">Footwear</a></li>
+                        <li><a asp-page="/Products" asp-route-categoryId="4">Accessories</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-6">
+                    <div class="footer-col-title">Customer Care</div>
+                    <ul class="footer-menu">
+                        <li><a asp-page="/Orders">Track Order</a></li>
+                        <li><a href="#">Shipping Policy</a></li>
+                        <li><a href="#">Returns &amp; Exchanges</a></li>
+                        <li><a asp-page="/ChangePassword">Account Settings</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="footer-col-title">Newsletter</div>
+                    <p class="small text-secondary mb-3">Sign up for editorial previews and new arrival notices.</p>
+                    <form onsubmit="event.preventDefault();" class="d-flex gap-2">
+                        <input type="email" class="form-control form-control-sm rounded-0 border" placeholder="Email address" required />
+                        <button type="submit" class="btn btn-sm btn-solid">Join</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-top py-3">
+            <div class="container d-flex flex-column flex-sm-row justify-content-between align-items-center small text-muted">
+                <span>&copy; 2026 StyleSphere. All rights reserved.</span>
+                <div class="d-flex gap-4 mt-2 mt-sm-0">
+                    <a href="#" class="text-muted">Privacy Policy</a>
+                    <a href="#" class="text-muted">Terms of Service</a>
+                </div>
+            </div>
+        </div>
     </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-

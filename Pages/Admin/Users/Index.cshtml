@@ -2,75 +2,71 @@
 @model StyleSphere.Pages.Admin.Users.IndexModel
 @{
     ViewData["Title"] = "Users Management";
-    
-    // Get users from ViewData (set in the .cs file)
     var users = ViewData["Users"] as List<StyleSphere.Models.User>;
 }
 
-<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h1>Users Management</h1>
-        <a asp-page="Create" style="padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">Create New User</a>
+<div class="py-2">
+    <div class="d-flex justify-content-between align-items-baseline mb-4 pb-2 border-bottom">
+        <div>
+            <h1 class="h3 fw-bold mb-1 text-uppercase letter-spacing-1">User Accounts</h1>
+            <span class="text-secondary small">Access permissions and user profiles</span>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-page="Create" class="btn btn-sm btn-solid">Add User</a>
+            <a asp-page="/Admin/Index" class="btn btn-sm btn-outline-minimal">Dashboard</a>
+        </div>
     </div>
 
-    @* Display users in a table *@
     @if (users != null && users.Count > 0)
     {
-        <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
-            <thead>
-                <tr style="background-color: #f0f0f0;">
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Role</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @* Loop through each user and display it in a table row *@
-                @foreach (var user in users)
-                {
+        <div class="table-responsive">
+            <table class="table-minimal align-middle">
+                <thead>
                     <tr>
-                        <td>@user.UserID</td>
-                        <td>@user.Name</td>
-                        <td>@user.Email</td>
-                        <td>
-                            @if (!string.IsNullOrEmpty(user.Phone))
-                            {
-                                @user.Phone
-                            }
-                            else
-                            {
-                                <text>N/A</text>
-                            }
-                        </td>
-                        <td>
-                            @* Display role with color badge *@
-                            @if (user.Role == "Admin")
-                            {
-                                <span style="background-color: #dc3545; color: white; padding: 5px 10px; border-radius: 4px;">@user.Role</span>
-                            }
-                            else
-                            {
-                                <span style="background-color: #17a2b8; color: white; padding: 5px 10px; border-radius: 4px;">@user.Role</span>
-                            }
-                        </td>
-                        <td>
-                            <a asp-page="Edit" asp-route-id="@user.UserID" style="padding: 5px 10px; background-color: #ffc107; color: #000; text-decoration: none; border-radius: 4px; margin-right: 5px;">Edit</a>
-                            <a asp-page="Delete" asp-route-id="@user.UserID" style="padding: 5px 10px; background-color: #dc3545; color: white; text-decoration: none; border-radius: 4px;">Delete</a>
-                        </td>
+                        <th style="width: 70px;">ID</th>
+                        <th>User Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th class="text-end" style="width: 140px;">Actions</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    }
-    else
-    {
-        @* Show message if no users found *@
-        <div style="background-color: #d1ecf1; color: #0c5460; padding: 20px; border: 1px solid #bee5eb; border-radius: 4px;">
-            No users found. <a asp-page="Create">Create the first user</a>
+                </thead>
+                <tbody>
+                    @foreach (var user in users)
+                    {
+                        <tr>
+                            <td class="text-secondary">#@user.UserID</td>
+                            <td>
+                                <div class="fw-bold text-dark">@user.Name</div>
+                            </td>
+                            <td>
+                                <span class="text-secondary">@user.Email</span>
+                            </td>
+                            <td>
+                                <span class="text-secondary small">@(!string.IsNullOrEmpty(user.Phone) ? user.Phone : "None")</span>
+                            </td>
+                            <td>
+                                @if (user.Role == "Admin")
+                                {
+                                    <span class="badge bg-dark text-white rounded-0 px-2 py-1">Administrator</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-dark border rounded-0 px-2 py-1">Customer</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-page="Edit" asp-route-id="@user.UserID" class="btn btn-sm btn-outline-dark rounded-0 px-2 py-1 small">
+                                    Edit
+                                </a>
+                                <a asp-page="Delete" asp-route-id="@user.UserID" class="btn btn-sm btn-link text-danger text-decoration-none p-0 ms-2 small">
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     }
 </div>
-

@@ -1,40 +1,50 @@
 @page
 @model StyleSphere.Pages.Admin.ReportsModel
 @{
-    ViewData["Title"] = "Admin Reports";
+    ViewData["Title"] = "Business Intelligence & Reports";
     
-    // Get data from ViewData (set in the .cs file)
     var productCountByCategory = ViewData["ProductCountByCategory"] as Dictionary<string, int>;
     var lowStockProducts = ViewData["LowStockProducts"] as List<StyleSphere.Models.Product>;
     var totalRevenue = ViewData["TotalRevenue"] as decimal? ?? 0;
     var ordersByStatus = ViewData["OrdersByStatus"] as Dictionary<string, int>;
 }
 
-<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-    <h1>Admin Reports</h1>
-    <hr />
+<div class="py-2">
+    <div class="d-flex justify-content-between align-items-baseline mb-4 pb-2 border-bottom">
+        <div>
+            <h1 class="h3 fw-bold mb-1 text-uppercase letter-spacing-1">Analytics &amp; Inventory Reports</h1>
+            <span class="text-secondary small">Financial metrics, category spread, and inventory warning levels</span>
+        </div>
+        <a asp-page="/Admin/Index" class="btn btn-sm btn-outline-minimal">Dashboard</a>
+    </div>
 
-    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
-        @* Products Count by Category Report *@
-        <div style="flex: 1;">
-            <div style="border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
-                <h3 style="margin-top: 0; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Products Count by Category</h3>
-                <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+    <!-- Revenue Hero Minimal Card -->
+    <div class="p-4 mb-4 border bg-light">
+        <span class="text-uppercase small fw-bold text-secondary letter-spacing-1 d-block mb-1">Total Verified Revenue</span>
+        <h2 class="display-5 fw-bold text-dark mb-1">$@totalRevenue.ToString("F2")</h2>
+        <span class="text-muted small">Gross revenue realized from all completed customer purchases.</span>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <!-- Products by Category -->
+        <div class="col-lg-6">
+            <div class="clean-card h-100 p-3">
+                <h5 class="fw-bold mb-3 pb-2 border-bottom text-uppercase small letter-spacing-1">Products by Category</h5>
+                <table class="table-minimal">
                     <thead>
-                        <tr style="background-color: #f0f0f0;">
-                            <th>Category</th>
-                            <th>Product Count</th>
+                        <tr>
+                            <th>Department</th>
+                            <th class="text-end">Count</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @* Loop through each category and display product count *@
                         @if (productCountByCategory != null)
                         {
                             @foreach (var item in productCountByCategory)
                             {
                                 <tr>
                                     <td>@item.Key</td>
-                                    <td>@item.Value</td>
+                                    <td class="text-end fw-bold">@item.Value</td>
                                 </tr>
                             }
                         }
@@ -43,71 +53,25 @@
             </div>
         </div>
 
-        @* Low Stock Products Report *@
-        <div style="flex: 1;">
-            <div style="border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
-                <h3 style="margin-top: 0; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Low Stock Products (Stock <= 10)</h3>
-                <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+        <!-- Orders by Status -->
+        <div class="col-lg-6">
+            <div class="clean-card h-100 p-3">
+                <h5 class="fw-bold mb-3 pb-2 border-bottom text-uppercase small letter-spacing-1">Fulfillment Status</h5>
+                <table class="table-minimal">
                     <thead>
-                        <tr style="background-color: #f0f0f0;">
-                            <th>Product</th>
-                            <th>Stock</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @* Loop through each low stock product and display it *@
-                        @if (lowStockProducts != null && lowStockProducts.Count > 0)
-                        {
-                            @foreach (var product in lowStockProducts)
-                            {
-                                <tr>
-                                    <td>@product.Name</td>
-                                    <td><span style="background-color: #dc3545; color: white; padding: 5px 10px; border-radius: 4px;">@product.Stock</span></td>
-                                </tr>
-                            }
-                        }
-                        else
-                        {
-                            <tr>
-                                <td colspan="2">No products with low stock.</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div style="display: flex; gap: 20px;">
-        @* Total Revenue Report *@
-        <div style="flex: 1;">
-            <div style="border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
-                <h3 style="margin-top: 0; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Total Revenue</h3>
-                <h2 style="margin: 20px 0;">$@totalRevenue.ToString("F2")</h2>
-                <p style="color: #6c757d;">Total revenue from all completed orders.</p>
-            </div>
-        </div>
-
-        @* Orders by Status Report *@
-        <div style="flex: 1;">
-            <div style="border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
-                <h3 style="margin-top: 0; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Orders by Status</h3>
-                <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr style="background-color: #f0f0f0;">
+                        <tr>
                             <th>Status</th>
-                            <th>Count</th>
+                            <th class="text-end">Orders Count</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @* Loop through each status and display order count *@
                         @if (ordersByStatus != null)
                         {
                             @foreach (var item in ordersByStatus)
                             {
                                 <tr>
                                     <td>@item.Key</td>
-                                    <td>@item.Value</td>
+                                    <td class="text-end fw-bold">@item.Value</td>
                                 </tr>
                             }
                         }
@@ -116,5 +80,41 @@
             </div>
         </div>
     </div>
-</div>
 
+    <!-- Low Stock Warning Table -->
+    <div class="clean-card p-3">
+        <h5 class="fw-bold mb-3 pb-2 border-bottom text-uppercase small letter-spacing-1 text-danger">Inventory Alerts (Stock &le; 10 units)</h5>
+        @if (lowStockProducts != null && lowStockProducts.Count > 0)
+        {
+            <table class="table-minimal">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Stock Remaining</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var prod in lowStockProducts)
+                    {
+                        <tr>
+                            <td class="fw-bold">@prod.Name</td>
+                            <td class="text-danger fw-bold">@prod.Stock units left</td>
+                            <td class="text-end">
+                                <a asp-page="/Admin/Products/Edit" asp-route-id="@prod.ProductID" class="btn btn-sm btn-outline-dark rounded-0 px-2 py-1 small">
+                                    Restock
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="p-3 text-center text-muted small">
+                All inventory quantities are currently adequate.
+            </div>
+        }
+    </div>
+</div>

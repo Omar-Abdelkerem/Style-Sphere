@@ -3,55 +3,107 @@
 @{
     ViewData["Title"] = "Admin Dashboard";
     
-    // Get statistics from ViewData (set in the .cs file)
     var totalProducts = ViewData["TotalProducts"] as int? ?? 0;
     var totalCategories = ViewData["TotalCategories"] as int? ?? 0;
     var totalOrders = ViewData["TotalOrders"] as int? ?? 0;
     var totalCustomers = ViewData["TotalCustomers"] as int? ?? 0;
 }
 
-<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-    <h1 style="margin-bottom: 30px;">Admin Dashboard</h1>
-    
-    @* Display statistics *@
-    <div style="display: flex; gap: 20px; margin-bottom: 30px;">
-        <div style="flex: 1; border: 1px solid #ddd; padding: 20px; border-radius: 4px;">
-            <h3 style="margin-top: 0; font-size: 1.2em;">Total Products</h3>
-            <h2 style="margin: 10px 0;">@totalProducts</h2>
+<div class="py-2">
+    <div class="d-flex justify-content-between align-items-baseline mb-4 pb-2 border-bottom">
+        <div>
+            <h1 class="h3 fw-bold mb-1 text-uppercase letter-spacing-1">Executive Dashboard</h1>
+            <span class="text-secondary small">System statistics and management console</span>
         </div>
-        <div style="flex: 1; border: 1px solid #ddd; padding: 20px; border-radius: 4px;">
-            <h3 style="margin-top: 0; font-size: 1.2em;">Total Categories</h3>
-            <h2 style="margin: 10px 0;">@totalCategories</h2>
-        </div>
-        <div style="flex: 1; border: 1px solid #ddd; padding: 20px; border-radius: 4px;">
-            <h3 style="margin-top: 0; font-size: 1.2em;">Total Orders</h3>
-            <h2 style="margin: 10px 0;">@totalOrders</h2>
-        </div>
-        <div style="flex: 1; border: 1px solid #ddd; padding: 20px; border-radius: 4px;">
-            <h3 style="margin-top: 0; font-size: 1.2em;">Total Customers</h3>
-            <h2 style="margin: 10px 0;">@totalCustomers</h2>
+        <div class="d-flex gap-2">
+            <a asp-page="/Admin/Products/Create" class="btn btn-sm btn-solid">New Product</a>
+            <a asp-page="/Index" class="btn btn-sm btn-outline-minimal">View Storefront</a>
         </div>
     </div>
-    
-    @* Management links *@
-    <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; border: 1px solid #ddd; padding: 20px; border-radius: 4px;">
-            <h3 style="margin-top: 0;">Categories</h3>
-            <p>Manage product categories</p>
-            <a asp-page="/Admin/Categories/Index" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">Manage Categories</a>
+
+    <!-- 4 Minimal Stat Boxes -->
+    <div class="row g-4 mb-5">
+        <div class="col-xl-3 col-sm-6">
+            <div class="admin-counter-box">
+                <div class="title">Total Products</div>
+                <div class="num">@totalProducts</div>
+            </div>
         </div>
-        
-        <div style="flex: 1; border: 1px solid #ddd; padding: 20px; border-radius: 4px;">
-            <h3 style="margin-top: 0;">Products</h3>
-            <p>Manage products and inventory</p>
-            <a asp-page="/Admin/Products/Index" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">Manage Products</a>
+
+        <div class="col-xl-3 col-sm-6">
+            <div class="admin-counter-box">
+                <div class="title">Categories</div>
+                <div class="num">@totalCategories</div>
+            </div>
         </div>
-        
-        <div style="flex: 1; border: 1px solid #ddd; padding: 20px; border-radius: 4px;">
-            <h3 style="margin-top: 0;">Reports</h3>
-            <p>View reports and statistics</p>
-            <a asp-page="/Admin/Reports" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">View Reports</a>
+
+        <div class="col-xl-3 col-sm-6">
+            <div class="admin-counter-box">
+                <div class="title">Total Orders</div>
+                <div class="num">@totalOrders</div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-sm-6">
+            <div class="admin-counter-box">
+                <div class="title">Customers</div>
+                <div class="num">@totalCustomers</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Modules -->
+    <h4 class="h6 fw-bold text-uppercase letter-spacing-1 mb-3">System Sections</h4>
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="clean-card h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="fw-bold mb-2">Products</h5>
+                    <p class="text-secondary small mb-4">Manage catalog items, pricing, inventory stock, and photography.</p>
+                </div>
+                <div class="d-flex flex-column gap-2">
+                    <a asp-page="/Admin/Products/Index" class="btn btn-sm btn-outline-minimal w-100">Catalog List</a>
+                    <a asp-page="/Admin/Products/Create" class="btn btn-sm btn-solid w-100">+ Add Product</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="clean-card h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="fw-bold mb-2">Categories</h5>
+                    <p class="text-secondary small mb-4">Organize departments, classifications, and catalog filters.</p>
+                </div>
+                <div class="d-flex flex-column gap-2">
+                    <a asp-page="/Admin/Categories/Index" class="btn btn-sm btn-outline-minimal w-100">Category List</a>
+                    <a asp-page="/Admin/Categories/Create" class="btn btn-sm btn-solid w-100">+ Add Category</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="clean-card h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="fw-bold mb-2">Users</h5>
+                    <p class="text-secondary small mb-4">Manage customer accounts, system administrators, and security privileges.</p>
+                </div>
+                <div class="d-flex flex-column gap-2">
+                    <a asp-page="/Admin/Users/Index" class="btn btn-sm btn-outline-minimal w-100">User List</a>
+                    <a asp-page="/Admin/Users/Create" class="btn btn-sm btn-solid w-100">+ Add User</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="clean-card h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="fw-bold mb-2">Reports</h5>
+                    <p class="text-secondary small mb-4">View total revenue, order fulfillment breakdown, and stock alerts.</p>
+                </div>
+                <div class="d-flex flex-column gap-2">
+                    <a asp-page="/Admin/Reports" class="btn btn-sm btn-solid w-100">View Analytics</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-

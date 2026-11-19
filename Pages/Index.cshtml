@@ -1,81 +1,116 @@
 ﻿@page
 @model StyleSphere.Pages.IndexModel
 @{
-    // Set the page title
-    ViewData["Title"] = "Home - StyleSphere";
+    ViewData["Title"] = "StyleSphere - Contemporary Fashion & Essentials";
     Layout = "_CustomerLayout";
-    
-    // Get the products from ViewData (set in the .cs file)
-    // Cast it to a list of Product objects
     var products = ViewData["Products"] as List<StyleSphere.Models.Product>;
 }
 
-<div class="hero-section">
-    <h1>Welcome to StyleSphere</h1>
-    <p>Discover the latest fashion trends and find your perfect style</p>
-    <a asp-page="/Products" class="btn">Shop Now</a>
-</div>
+<div class="container py-4 pb-5">
+    <!-- Editorial Minimal Hero -->
+    <div class="hero-minimal">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <div class="hero-tag">Spring / Summer 2026</div>
+                <h1>Modern Wardrobe Essentials</h1>
+                <p>
+                    A curated selection of tailored outerwear, breathable organic cottons, and contemporary leather goods engineered for daily refinement.
+                </p>
+                <div class="d-flex gap-3">
+                    <a asp-page="/Products" class="btn btn-solid">
+                        Shop All Products
+                    </a>
+                    <a asp-page="/Products" asp-route-categoryId="1" class="btn btn-outline-minimal">
+                        Men
+                    </a>
+                    <a asp-page="/Products" asp-route-categoryId="2" class="btn btn-outline-minimal">
+                        Women
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<section class="products-section">
-    <h1>Featured Products</h1>
-    
-    @* Check if we have any products to display *@
+    <!-- Category Filter Tabs -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h5 fw-bold mb-0 text-uppercase letter-spacing-1">Featured Arrivals</h2>
+        <a asp-page="/Products" class="small fw-semibold text-dark text-uppercase letter-spacing-1">View All &rarr;</a>
+    </div>
+
+    <div class="filter-tabs">
+        <a asp-page="/Products" class="filter-tab-link active">All Pieces</a>
+        <a asp-page="/Products" asp-route-categoryId="1" class="filter-tab-link">Men</a>
+        <a asp-page="/Products" asp-route-categoryId="2" class="filter-tab-link">Women</a>
+        <a asp-page="/Products" asp-route-categoryId="3" class="filter-tab-link">Shoes</a>
+        <a asp-page="/Products" asp-route-categoryId="4" class="filter-tab-link">Accessories</a>
+    </div>
+
+    <!-- Real Photo Product Grid -->
     @if (products != null && products.Count > 0)
     {
         <div class="product-grid">
-            @* Loop through each product and display it *@
             @foreach (var product in products)
             {
-                <div class="product-card">
-                    @* Link to product details page *@
-                    <a asp-page="/details" asp-route-id="@product.ProductID">
-                        @* Display product image if it exists *@
-                        @* Display product image if it exists *@
+                <div class="product-item">
+                    <!-- Real Product Photo Link -->
+                    <a asp-page="/details" asp-route-id="@product.ProductID" class="product-image-container text-decoration-none">
                         @if (!string.IsNullOrEmpty(product.ImageName))
                         {
-                            <img src="~/images/products/@product.ImageName" alt="@product.Name" />
-                        }
-                        
-                        @* Display category name *@
-                        <div class="category">
-                            @if (product.Category != null)
-                            {
-                                @product.Category.Name
-                            }
-                            else
-                            {
-                                <text>Uncategorized</text>
-                            }
-                        </div>
-                        
-                        @* Display product name *@
-                        <h3>@product.Name</h3>
-                        
-                        @* Display product price (formatted to 2 decimal places) *@
-                        <div class="product-price">$@product.Price.ToString("F2")</div>
-                        
-                        @* Display stock status *@
-                        @if (product.Stock > 0)
-                        {
-                            <span class="stock-badge in-stock">In Stock (@product.Stock)</span>
+                            <img src="~/images/products/@product.ImageName" alt="@product.Name" loading="lazy" />
                         }
                         else
                         {
-                            <span class="stock-badge out-of-stock">Out of Stock</span>
+                            <div class="d-flex align-items-center justify-content-center h-100 w-100 text-muted">
+                                <i class="bi bi-image fs-2"></i>
+                            </div>
                         }
                     </a>
-                    
-                    @* Only show "Add to Cart" button if product is in stock *@
+
+                    <!-- Category Tag -->
+                    <div class="product-meta-cat">
+                        @(product.Category?.Name ?? "Apparel")
+                    </div>
+
+                    <!-- Title -->
+                    <a asp-page="/details" asp-route-id="@product.ProductID" class="text-decoration-none">
+                        <div class="product-meta-title">@product.Name</div>
+                    </a>
+
+                    <!-- Price -->
+                    <div class="product-meta-price">
+                        $@product.Price.ToString("F2")
+                    </div>
+
+                    <!-- Stock Status -->
+                    <div class="product-meta-stock @(product.Stock <= 15 ? "low" : "")">
+                        @if (product.Stock > 15)
+                        {
+                            <span>In Stock (@product.Stock)</span>
+                        }
+                        else if (product.Stock > 0)
+                        {
+                            <span>Low Stock (@product.Stock left)</span>
+                        }
+                        else
+                        {
+                            <span>Sold Out</span>
+                        }
+                    </div>
+
+                    <!-- Add to Bag Form -->
                     @if (product.Stock > 0)
                     {
-                        @* Form to add product to cart - uses POST method *@
-                        <form method="post" asp-page="/AddToCart" style="display: inline;">
+                        <form method="post" asp-page="/AddToCart" class="m-0 mt-auto">
                             <input type="hidden" name="productId" value="@product.ProductID" />
                             <input type="hidden" name="quantity" value="1" />
-                            <button type="submit" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                                Add to Cart
+                            <button type="submit" class="btn btn-add-bag">
+                                Add to Bag
                             </button>
                         </form>
+                    }
+                    else
+                    {
+                        <button class="btn btn-add-bag disabled" disabled style="opacity: 0.5;">Out of Stock</button>
                     }
                 </div>
             }
@@ -83,9 +118,8 @@
     }
     else
     {
-        @* Show message if no products found *@
-        <div style="background-color: #d1ecf1; color: #0c5460; padding: 20px; border: 1px solid #bee5eb; border-radius: 4px;">
-            <p>No products available at the moment. Check back soon!</p>
+        <div class="py-5 text-center text-muted">
+            <p>No products available currently.</p>
         </div>
     }
-</section>
+</div>

@@ -21,7 +21,6 @@ public class AppDbContext : DbContext
     public DbSet<Shipper> Shippers { get; set; }
     public DbSet<Shipment> Shipments { get; set; }
     public DbSet<Review> Reviews { get; set; }
-    public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -167,19 +166,6 @@ public class AppDbContext : DbContext
                   .OnDelete(DeleteBehavior.Cascade);
             // Ensure one review per user per product
             entity.HasIndex(e => new { e.UserID, e.ProductID }).IsUnique();
-        });
-
-        // Configure PasswordResetToken entity
-        modelBuilder.Entity<PasswordResetToken>(entity =>
-        {
-            entity.ToTable("PasswordResetToken");
-            entity.HasKey(e => e.TokenID);
-            entity.HasIndex(e => e.TokenHash).IsUnique();
-            entity.HasIndex(e => e.UserID);
-            entity.HasOne(e => e.User)
-                  .WithMany()
-                  .HasForeignKey(e => e.UserID)
-                  .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

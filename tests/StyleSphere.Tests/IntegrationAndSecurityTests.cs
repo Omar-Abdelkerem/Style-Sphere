@@ -168,60 +168,6 @@ public class IntegrationAndSecurityTests
     }
 
     [Fact]
-    public async Task PasswordResetToken_IsStoredHashed_SingleUse_AndInvalidatesActiveSessions()
-    {
-        using var factory = new StyleSphereWebFactory();
-        var client = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
-
-        // Request password reset for o@gmail.com
-        var fpToken = await StyleSphereWebFactory.ExtractAntiForgeryTokenAsync(client, "/ForgotPassword");
-        var fpRes = await client.PostAsync("/ForgotPassword", new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            ["email"] = "o@gmail.com",
-            ["__RequestVerificationToken"] = fpToken
-        }));
-        Assert.Equal(HttpStatusCode.OK, fpRes.StatusCode);
-        var fpHtml = await fpRes.Content.ReadAsStringAsync();
-
-        // Extract dev reset token from response
-        var match = System.Text.RegularExpressions.Regex.Match(fpHtml, @"ResetPassword\?token=([a-f0-9]{64})");
-        Assert.True(match.Success, "Expected reset token link in development environment");
-        string rawResetToken = match.Groups[1].Value;
-
-        // Verify database stores SHA-256 hash, NOT plaintext token
-        using (var scope = factory.Services.CreateScope())
-        {
-            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            var dbToken = await db.PasswordResetTokens.SingleAsync();
-            Assert.NotEqual(rawResetToken, dbToken.TokenHash);
-            Assert.Equal(PasswordHasher.HashResetToken(rawResetToken), dbToken.TokenHash);
-            Assert.False(dbToken.IsUsed);
-        }
-
-        // Consume reset token once
-        var rpToken = await StyleSphereWebFactory.ExtractAntiForgeryTokenAsync(client, $"/ResetPassword?token={rawResetToken}");
-        var rpRes = await client.PostAsync("/ResetPassword", new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            ["token"] = rawResetToken,
-            ["newPassword"] = "ResetSuccess99!",
-            ["confirmPassword"] = "ResetSuccess99!",
-            ["__RequestVerificationToken"] = rpToken
-        }));
-        Assert.Equal(HttpStatusCode.Redirect, rpRes.StatusCode);
-
-        // Attempt to reuse the exact same reset token a second time -> must fail!
-        var secondAttemptRes = await client.PostAsync("/ResetPassword", new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            ["token"] = rawResetToken,
-            ["newPassword"] = "AnotherPass99!",
-            ["confirmPassword"] = "AnotherPass99!",
-            ["__RequestVerificationToken"] = rpToken
-        }));
-        var secondHtml = await secondAttemptRes.Content.ReadAsStringAsync();
-        Assert.Contains("invalid, has already been used, or has expired", secondHtml, StringComparison.OrdinalIgnoreCase);
-    }
-
-    [Fact]
     public async Task CsrfProtection_CrossOriginPostAndMissingToken_AreRejected()
     {
         using var factory = new StyleSphereWebFactory();

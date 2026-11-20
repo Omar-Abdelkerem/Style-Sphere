@@ -295,17 +295,6 @@ public static class DbInitializer
         try
         {
             context.Database.ExecuteSqlRaw(@"
-                CREATE TABLE IF NOT EXISTS ""PasswordResetToken"" (
-                    ""TokenID"" INTEGER NOT NULL CONSTRAINT ""PK_PasswordResetToken"" PRIMARY KEY AUTOINCREMENT,
-                    ""UserID"" INTEGER NOT NULL,
-                    ""TokenHash"" TEXT NOT NULL,
-                    ""ExpiresAt"" TEXT NOT NULL,
-                    ""IsUsed"" INTEGER NOT NULL DEFAULT 0,
-                    ""CreatedAt"" TEXT NOT NULL,
-                    CONSTRAINT ""FK_PasswordResetToken_User_UserID"" FOREIGN KEY (""UserID"") REFERENCES ""User"" (""UserID"") ON DELETE CASCADE
-                );
-                CREATE UNIQUE INDEX IF NOT EXISTS ""IX_PasswordResetToken_TokenHash"" ON ""PasswordResetToken"" (""TokenHash"");
-                CREATE INDEX IF NOT EXISTS ""IX_PasswordResetToken_UserID"" ON ""PasswordResetToken"" (""UserID"");
                 CREATE UNIQUE INDEX IF NOT EXISTS ""IX_Category_Name"" ON ""Category"" (""Name"");
                 CREATE INDEX IF NOT EXISTS ""IX_Product_Stock"" ON ""Product"" (""Stock"");
                 CREATE INDEX IF NOT EXISTS ""IX_Order_Status"" ON ""Order"" (""Status"");

@@ -72,23 +72,4 @@ public static class PasswordHasher
         return !string.IsNullOrEmpty(storedPassword) &&
                storedPassword.StartsWith(Prefix + "$", StringComparison.Ordinal);
     }
-
-    public static (string RawToken, string TokenHash) GenerateResetToken()
-    {
-        byte[] tokenBytes = RandomNumberGenerator.GetBytes(32);
-        string rawToken = Convert.ToHexString(tokenBytes).ToLowerInvariant();
-        string tokenHash = HashResetToken(rawToken);
-        return (rawToken, tokenHash);
-    }
-
-    public static string HashResetToken(string rawToken)
-    {
-        if (string.IsNullOrWhiteSpace(rawToken))
-        {
-            return string.Empty;
-        }
-
-        byte[] hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(rawToken.Trim().ToLowerInvariant()));
-        return Convert.ToHexString(hashBytes).ToLowerInvariant();
-    }
 }

@@ -21,8 +21,7 @@
 
 ### Security & Production Hardening
 - **Cryptographic Password Hashing**: Salted **PBKDF2-HMAC-SHA512** with **210,000 iterations** and constant-time comparison (`CryptographicOperations.FixedTimeEquals`).
-- **Server-Side Session Versioning**: Every account tracks a `SessionVersion` counter in the database. Logging out, changing a password, or resetting a password increments `SessionVersion`, immediately invalidating all other active sessions across devices.
-- **Single-Use Hashed Password Reset Tokens**: Password recovery (`/ForgotPassword` & `/ResetPassword`) generates 32-byte cryptographic tokens stored strictly as SHA-256 hashes with configurable expiration (`Security:PasswordResetTokenExpiryMinutes`).
+- **Server-Side Session Versioning**: Every account tracks a `SessionVersion` counter in the database. Logging out or changing a password increments `SessionVersion`, immediately invalidating all other active sessions across devices.
 - **Server-Side Authorization Filter**: Global `AuthPageFilter` enforces authentication on all customer routes and strict `Admin` role verification (`403 Forbidden`) across all `/Admin/**` routes.
 - **Magic-Byte File Upload Validation**: Product image uploads inspect actual file header signatures (JPEG, PNG, GIF, WebP magic bytes), enforce a 5 MB limit, reject SVG/executable extensions, and store files under generated UUID filenames.
 - **CSRF, Rate Limiting & Security Headers**:

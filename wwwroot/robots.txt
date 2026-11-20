@@ -12,7 +12,5 @@ Disallow: /ChangePassword
 Disallow: /AddReview
 Disallow: /AddToCart
 Disallow: /Logout
-Disallow: /ForgotPassword
-Disallow: /ResetPassword
 
 Sitemap: /sitemap.xml

@@ -4,13 +4,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - StyleSphere Management</title>
+    <meta name="robots" content="noindex, nofollow" />
     
     <!-- Bootstrap 5 CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Clean Minimalist Style -->
     <link rel="stylesheet" href="~/css/customer.css" asp-append-version="true" />
 </head>
 <body class="d-flex flex-column min-vh-100 bg-white">
+    <a href="#admin-main-content" class="visually-hidden-focusable bg-dark text-white px-3 py-2 position-absolute top-0 start-0" style="z-index: 2000;">
+        Skip to main content
+    </a>
+
     <!-- Admin Navigation Header -->
     <header class="site-header">
         <div class="container py-3">
@@ -19,7 +26,7 @@
                     STYLESPHERE <span class="badge bg-dark rounded-0 fs-7 align-middle ms-1">ADMIN</span>
                 </a>
 
-                <nav class="d-inline-flex gap-1">
+                <nav class="d-inline-flex flex-wrap gap-1" aria-label="Admin navigation">
                     <a class="nav-link @(ViewContext.RouteData.Values["page"]?.ToString() == "/Admin/Index" ? "active" : "")" asp-page="/Admin/Index">Dashboard</a>
                     <a class="nav-link @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("/Admin/Categories") == true ? "active" : "")" asp-page="/Admin/Categories/Index">Categories</a>
                     <a class="nav-link @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("/Admin/Products") == true ? "active" : "")" asp-page="/Admin/Products/Index">Products</a>
@@ -29,14 +36,16 @@
 
                 <div class="d-flex align-items-center gap-2">
                     <a asp-page="/Index" class="btn btn-sm btn-outline-minimal">Storefront</a>
-                    <a asp-page="/Logout" class="btn btn-sm btn-solid">Sign Out</a>
+                    <form method="post" asp-page="/Logout" class="m-0">
+                        <button type="submit" class="btn btn-sm btn-solid">Sign Out</button>
+                    </form>
                 </div>
             </div>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="flex-grow-1 py-4">
+    <main id="admin-main-content" class="flex-grow-1 py-4">
         <div class="container">
             @if (TempData["SuccessMessage"] != null)
             {
@@ -56,8 +65,8 @@
     </main>
 
     <!-- Footer -->
-    <footer class="border-top py-3 text-center small text-muted">
-        <div class="container d-flex justify-content-between align-items-center">
+    <footer class="border-top py-3 text-center small text-secondary">
+        <div class="container d-flex flex-column flex-sm-row justify-content-between align-items-center">
             <span>&copy; 2026 StyleSphere Management Console</span>
             <span>Internal Access Only</span>
         </div>
@@ -65,6 +74,7 @@
 
     <!-- Bootstrap 5 Bundle JS -->
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

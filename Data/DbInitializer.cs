@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using StyleSphere.Models;
+using StyleSphere.Services;
 
 namespace StyleSphere.Data;
 
@@ -11,6 +13,9 @@ public static class DbInitializer
     {
         // Ensure database tables exist
         context.Database.EnsureCreated();
+
+        // Ensure schema migrations & indexes for existing databases
+        ApplyNonDestructiveSchemaUpdates(context);
 
         // 1. Seed Categories if empty
         if (!context.Categories.Any())
@@ -31,7 +36,9 @@ public static class DbInitializer
         var shoesCat = context.Categories.FirstOrDefault(c => c.Name == "Shoes");
         var accCat = context.Categories.FirstOrDefault(c => c.Name == "Accessories");
 
-        // 2. Seed Default Users if empty
+        // 2. Seed Default Users if empty (using PBKDF2-HMAC-SHA512 password hashes)
+        var initialAdminPassword = Environment.GetEnvironmentVariable("ADMIN_INITIAL_PASSWORD") ?? "admin123";
+
         if (!context.Users.Any(u => u.Email == "admin@stylesphere.com"))
         {
             context.Users.Add(new User
@@ -39,8 +46,9 @@ public static class DbInitializer
                 Name = "Admin",
                 Email = "admin@stylesphere.com",
                 Phone = "1234567890",
-                Password = "admin123",
-                Role = "Admin"
+                Password = PasswordHasher.HashPassword(initialAdminPassword),
+                Role = "Admin",
+                SessionVersion = 1
             });
         }
 
@@ -51,11 +59,33 @@ public static class DbInitializer
                 Name = "Omar",
                 Email = "o@gmail.com",
                 Phone = "01000000000",
-                Password = "123456",
-                Role = "Customer"
+                Password = PasswordHasher.HashPassword("123456"),
+                Role = "Customer",
+                SessionVersion = 1
             });
         }
         context.SaveChanges();
+
+        // Automatically upgrade any legacy plaintext passwords in existing databases to PBKDF2 hashes
+        var allUsers = context.Users.ToList();
+        bool upgradedHashes = false;
+        foreach (var user in allUsers)
+        {
+            if (!PasswordHasher.IsHashed(user.Password))
+            {
+                user.Password = PasswordHasher.HashPassword(user.Password);
+                upgradedHashes = true;
+            }
+            if (user.SessionVersion <= 0)
+            {
+                user.SessionVersion = 1;
+                upgradedHashes = true;
+            }
+        }
+        if (upgradedHashes)
+        {
+            context.SaveChanges();
+        }
 
         // 3. Seed Products if empty
         if (!context.Products.Any())
@@ -178,7 +208,7 @@ public static class DbInitializer
         // 4. Seed Initial Verified Reviews if empty
         if (!context.Reviews.Any())
         {
-            var customer = context.Users.FirstOrDefault(u => u.Email == "o@gmail.com") 
+            var customer = context.Users.FirstOrDefault(u => u.Email == "o@gmail.com")
                         ?? context.Users.FirstOrDefault(u => u.Role == "Customer");
 
             if (customer != null)
@@ -252,6 +282,49 @@ public static class DbInitializer
                     context.SaveChanges();
                 }
             }
+        }
+    }
+
+    private static void ApplyNonDestructiveSchemaUpdates(AppDbContext context)
+    {
+        if (!context.Database.IsSqlite())
+        {
+            return;
+        }
+
+        try
+        {
+            context.Database.ExecuteSqlRaw(@"
+                CREATE TABLE IF NOT EXISTS ""PasswordResetToken"" (
+                    ""TokenID"" INTEGER NOT NULL CONSTRAINT ""PK_PasswordResetToken"" PRIMARY KEY AUTOINCREMENT,
+                    ""UserID"" INTEGER NOT NULL,
+                    ""TokenHash"" TEXT NOT NULL,
+                    ""ExpiresAt"" TEXT NOT NULL,
+                    ""IsUsed"" INTEGER NOT NULL DEFAULT 0,
+                    ""CreatedAt"" TEXT NOT NULL,
+                    CONSTRAINT ""FK_PasswordResetToken_User_UserID"" FOREIGN KEY (""UserID"") REFERENCES ""User"" (""UserID"") ON DELETE CASCADE
+                );
+                CREATE UNIQUE INDEX IF NOT EXISTS ""IX_PasswordResetToken_TokenHash"" ON ""PasswordResetToken"" (""TokenHash"");
+                CREATE INDEX IF NOT EXISTS ""IX_PasswordResetToken_UserID"" ON ""PasswordResetToken"" (""UserID"");
+                CREATE UNIQUE INDEX IF NOT EXISTS ""IX_Category_Name"" ON ""Category"" (""Name"");
+                CREATE INDEX IF NOT EXISTS ""IX_Product_Stock"" ON ""Product"" (""Stock"");
+                CREATE INDEX IF NOT EXISTS ""IX_Order_Status"" ON ""Order"" (""Status"");
+                CREATE INDEX IF NOT EXISTS ""IX_Order_OrderDate"" ON ""Order"" (""OrderDate"");
+                CREATE UNIQUE INDEX IF NOT EXISTS ""IX_CartItem_CartID_ProductID"" ON ""CartItem"" (""CartID"", ""ProductID"");
+            ");
+        }
+        catch
+        {
+            // Ignore if already created
+        }
+
+        try
+        {
+            context.Database.ExecuteSqlRaw(@"ALTER TABLE ""User"" ADD COLUMN ""SessionVersion"" INTEGER NOT NULL DEFAULT 1;");
+        }
+        catch
+        {
+            // Column already exists
         }
     }
 }

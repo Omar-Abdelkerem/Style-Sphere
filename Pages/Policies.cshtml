@@ -1,0 +1,53 @@
+@page
+@model StyleSphere.Pages.PoliciesModel
+@{
+    ViewData["Title"] = "Client Services & Policies - StyleSphere";
+    ViewData["MetaDescription"] = "Review StyleSphere's shipping policy, complimentary 30-day returns, privacy commitments, and terms of service.";
+    Layout = "_CustomerLayout";
+}
+
+<div class="container py-4 pb-5" style="max-width: 860px;">
+    <div class="mb-4 pb-3 border-bottom">
+        <div class="hero-tag">Client Care</div>
+        <h1 class="h3 fw-bold mb-1 text-uppercase letter-spacing-1">Store Policies &amp; Terms</h1>
+        <span class="text-secondary small">Shipping, returns, privacy practices, and terms of purchase</span>
+    </div>
+
+    <section id="shipping" class="clean-card mb-4">
+        <h2 class="h5 fw-bold text-uppercase letter-spacing-1 mb-3">Shipping &amp; Delivery Policy</h2>
+        <p class="small text-secondary mb-2">
+            Orders placed before 2:00 PM local time are processed and dispatched within 1–2 business days. Complimentary express shipping is automatically applied to all domestic orders over $50.
+        </p>
+        <ul class="small text-secondary mb-0">
+            <li><strong>Standard Express Delivery:</strong> 3–5 business days (Complimentary on orders over $50)</li>
+            <li><strong>Order Tracking:</strong> Real-time fulfillment status is available under your <a asp-page="/Orders" class="text-dark fw-semibold text-decoration-underline">Order History</a>.</li>
+        </ul>
+    </section>
+
+    <section id="returns" class="clean-card mb-4">
+        <h2 class="h5 fw-bold text-uppercase letter-spacing-1 mb-3">Returns &amp; Exchanges</h2>
+        <p class="small text-secondary mb-2">
+            We accept complimentary returns and size exchanges within 30 calendar days of delivery. Returned garments and footwear must remain unworn, unwashed, and in original packaging with all tags attached.
+        </p>
+        <p class="small text-secondary mb-0">
+            Refunds are credited back to the original payment method within 5–7 business days of warehouse inspection.
+        </p>
+    </section>
+
+    <section id="privacy" class="clean-card mb-4">
+        <h2 class="h5 fw-bold text-uppercase letter-spacing-1 mb-3">Privacy Policy</h2>
+        <p class="small text-secondary mb-2">
+            StyleSphere collects only the essential personal information required to fulfill orders, manage your shopping bag, and provide customer support. Passwords are protected using salted PBKDF2-HMAC-SHA512 cryptographic hashing and are never stored or transmitted in plaintext.
+        </p>
+        <p class="small text-secondary mb-0">
+            We do not sell or share customer data with third-party advertising networks. Session cookies are marked <code>HttpOnly</code> and scoped strictly to your active browsing session.
+        </p>
+    </section>
+
+    <section id="terms" class="clean-card">
+        <h2 class="h5 fw-bold text-uppercase letter-spacing-1 mb-3">Terms of Service</h2>
+        <p class="small text-secondary mb-0">
+            By placing an order through StyleSphere, you confirm that your billing and delivery details are accurate. Product pricing and stock availability are verified in real time at checkout. Applicable regional taxes (14% VAT) are itemized clearly prior to order confirmation.
+        </p>
+    </section>
+</div>

@@ -9,13 +9,20 @@
     var reviewCount = ViewData["ReviewCount"] as int? ?? 0;
     
     ViewData["Title"] = product != null ? $"{product.Name} - StyleSphere" : "Product - StyleSphere";
+    ViewData["MetaDescription"] = product != null
+        ? $"{product.Name} (${product.Price:F2}). {(!string.IsNullOrEmpty(product.Description) ? product.Description : "Tailored garment constructed with premium materials.")}"
+        : "View product details and customer reviews at StyleSphere.";
+    if (!string.IsNullOrEmpty(product?.ImageName))
+    {
+        ViewData["OgImage"] = $"/images/products/{product.ImageName}";
+    }
 }
 
 <div class="container py-4 pb-5">
     @if (product == null)
     {
-        <div class="py-5 text-center text-muted border my-4">
-            <h4 class="fw-bold mb-2">Product Not Found</h4>
+        <div class="py-5 text-center text-secondary border my-4">
+            <h1 class="h4 fw-bold mb-2">Product Not Found</h1>
             <p class="small mb-3">This product could not be located in our active catalog.</p>
             <a asp-page="/Products" class="btn btn-sm btn-solid">Return to Catalog</a>
         </div>
@@ -45,11 +52,11 @@
                 <div class="detail-image-box border">
                     @if (!string.IsNullOrEmpty(product.ImageName))
                     {
-                        <img src="~/images/products/@product.ImageName" alt="@product.Name" class="img-fluid" />
+                        <img src="~/images/products/@product.ImageName" alt="@product.Name" width="800" height="1066" class="img-fluid" />
                     }
                     else
                     {
-                        <div class="text-muted py-5 text-center">
+                        <div class="text-secondary py-5 text-center">
                             No photo available
                         </div>
                     }
@@ -67,7 +74,7 @@
 
                     <div class="d-flex align-items-center gap-2 mb-3 small">
                         <span class="fw-bold">Rating: @(averageRating > 0 ? averageRating.ToString("F1") : "5.0") / 5.0</span>
-                        <span class="text-secondary">(@reviewCount reviews)</span>
+                        <span class="text-secondary">(@reviewCount @(reviewCount == 1 ? "review" : "reviews"))</span>
                     </div>
 
                     <div class="detail-price">
@@ -97,8 +104,9 @@
                             <input type="hidden" name="productId" value="@product.ProductID" />
                             <div class="row g-2 align-items-center">
                                 <div class="col-3">
+                                    <label for="quantity" class="visually-hidden">Quantity</label>
                                     <input type="number" id="quantity" name="quantity" value="1" min="1" max="@product.Stock" 
-                                           class="form-control text-center py-2 fw-semibold" required />
+                                           aria-label="Quantity" class="form-control text-center py-2 fw-semibold" required />
                                 </div>
                                 <div class="col-9">
                                     <button type="submit" class="btn btn-solid w-100 py-2">
@@ -120,10 +128,10 @@
         </div>
 
         <!-- Verified Reviews Section -->
-        <div class="border-top pt-5 mt-4">
+        <section class="border-top pt-5 mt-4" aria-labelledby="reviews-heading">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h3 class="h4 fw-bold mb-1">Customer Reviews</h3>
+                    <h2 id="reviews-heading" class="h4 fw-bold mb-1">Customer Reviews</h2>
                     <span class="text-secondary small">Based on verified purchases</span>
                 </div>
                 <a asp-page="/AddReview" asp-route-productId="@product.ProductID" class="btn btn-sm btn-outline-minimal">
@@ -140,7 +148,7 @@
                             <div class="p-3 bg-light border h-100">
                                 <div class="d-flex justify-content-between align-items-baseline mb-2">
                                     <span class="fw-bold small">@(review.User?.Name ?? "Customer")</span>
-                                    <span class="text-muted" style="font-size: 0.75rem;">@review.ReviewDate.ToString("MMM dd, yyyy")</span>
+                                    <span class="text-secondary" style="font-size: 0.75rem;">@review.ReviewDate.ToString("MMM dd, yyyy")</span>
                                 </div>
                                 <div class="small fw-semibold text-secondary mb-1">Score: @review.Rating / 5</div>
                                 <p class="small text-dark mb-0">"@review.Comment"</p>
@@ -151,10 +159,10 @@
             }
             else
             {
-                <div class="py-4 text-center text-muted small border">
+                <div class="py-4 text-center text-secondary small border">
                     No customer reviews yet. Be the first to share your thoughts.
                 </div>
             }
-        </div>
+        </section>
     }
 </div>

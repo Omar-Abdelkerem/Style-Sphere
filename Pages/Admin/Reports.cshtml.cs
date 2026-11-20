@@ -1,75 +1,86 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using StyleSphere.Data;
-using StyleSphere.Models;
 
 namespace StyleSphere.Pages.Admin;
 
-// This page displays various reports and statistics for the admin
 public class ReportsModel : PageModel
 {
-    // Database connection
     private readonly AppDbContext _db;
+    private readonly IConfiguration _config;
 
-    // Constructor
-    public ReportsModel(AppDbContext db)
+    public ReportsModel(AppDbContext db, IConfiguration config)
     {
         _db = db;
+        _config = config;
     }
 
-    // This method runs when the page loads (GET request)
-    public void OnGet()
+    public IActionResult OnGet()
     {
-        // Step 1: Get all categories
-        var categories = _db.Categories.OrderBy(c => c.Name).ToList();
-
-        // Step 2: Count products in each category
-        // Create a dictionary to store category name and product count
-        var productCountByCategory = new Dictionary<string, int>();
-        
-        foreach (var category in categories)
+        var userRole = HttpContext.Session.GetString("UserRole");
+        if (userRole != "Admin")
         {
-            // Count how many products belong to this category
-            int count = _db.Products.Count(p => p.CategoryID == category.CategoryID);
-            productCountByCategory[category.Name] = count;
+            return RedirectToPage("/login");
         }
 
-        // Step 3: Get products with low stock (stock <= 10)
-        var lowStockProducts = _db.Products
-            .Include(p => p.Category)
-            .Where(p => p.Stock <= 10)
-            .OrderBy(p => p.Stock)  // Order by stock (lowest first)
+        // 1. Batched query for categories + product counts (eliminates N+1 loop)
+        var categories = _db.Categories
+            .AsNoTracking()
+            .OrderBy(c => c.Name)
             .ToList();
 
-        // Step 4: Calculate total revenue from completed orders
-        // Sum all TotalAmount from orders where Status = "Completed"
-        decimal totalRevenue = 0;
-        var completedOrders = _db.Orders.Where(o => o.Status == "Completed").ToList();
-        foreach (var order in completedOrders)
+        var countsByCatId = _db.Products
+            .AsNoTracking()
+            .GroupBy(p => p.CategoryID)
+            .Select(g => new { CategoryID = g.Key, Count = g.Count() })
+            .ToDictionary(x => x.CategoryID, x => x.Count);
+
+        var productCountByCategory = new Dictionary<string, int>();
+        foreach (var category in categories)
         {
-            totalRevenue += order.TotalAmount;
+            productCountByCategory[category.Name] = countsByCatId.TryGetValue(category.CategoryID, out int count) ? count : 0;
         }
 
-        // Step 5: Count orders by status
-        // Create a dictionary to store status and count
+        // 2. Low stock products (using configured threshold)
+        int lowStockThreshold = _config.GetValue<int>("StoreSettings:LowStockThreshold", 10);
+        var lowStockProducts = _db.Products
+            .AsNoTracking()
+            .Include(p => p.Category)
+            .Where(p => p.Stock <= lowStockThreshold)
+            .OrderBy(p => p.Stock)
+            .Take(100)
+            .ToList();
+
+        // 3. Single grouped SQL query for order counts and revenue by status
+        var orderStats = _db.Orders
+            .AsNoTracking()
+            .GroupBy(o => o.Status)
+            .Select(g => new
+            {
+                Status = g.Key,
+                Count = g.Count(),
+                Revenue = g.Sum(o => (double)o.TotalAmount)
+            })
+            .ToList();
+
+        decimal totalRevenue = (decimal)orderStats
+            .Where(s => s.Status == "Completed" || s.Status == "Processing")
+            .Sum(s => s.Revenue);
+
         var ordersByStatus = new Dictionary<string, int>();
-        
-        // Get all possible order statuses
-        var allOrders = _db.Orders.ToList();
         var statuses = new[] { "Processing", "Shipped", "Completed", "Cancelled" };
-        
         foreach (var status in statuses)
         {
-            // Count orders with this status
-            int count = allOrders.Count(o => o.Status == status);
-            ordersByStatus[status] = count;
+            var match = orderStats.FirstOrDefault(s => s.Status == status);
+            ordersByStatus[status] = match?.Count ?? 0;
         }
 
-        // Step 6: Store all data in ViewData so the .cshtml file can use it
         ViewData["ProductCountByCategory"] = productCountByCategory;
         ViewData["LowStockProducts"] = lowStockProducts;
         ViewData["TotalRevenue"] = totalRevenue;
         ViewData["OrdersByStatus"] = ordersByStatus;
+
+        return Page();
     }
 }
-

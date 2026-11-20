@@ -1,56 +1,59 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using StyleSphere.Data;
-using StyleSphere.Models;
 
 namespace StyleSphere.Pages.Admin.Users;
 
-// This page allows admin to delete a user
 public class DeleteModel : PageModel
 {
-    // Database connection
     private readonly AppDbContext _db;
 
-    // Constructor
     public DeleteModel(AppDbContext db)
     {
         _db = db;
     }
 
-    // This method runs when the page loads (GET request)
-    // id parameter comes from the URL
     public IActionResult OnGet(int? id)
     {
-        // Step 1: Check if user ID was provided
+        if (HttpContext.Session.GetString("UserRole") != "Admin")
+        {
+            return RedirectToPage("/login");
+        }
+
         if (id == null)
         {
             return NotFound();
         }
 
-        // Step 2: Get user from database
         var user = _db.Users.Find(id.Value);
         if (user == null)
         {
             return NotFound();
         }
 
-        // Step 3: Store user in ViewData so the .cshtml file can use it
         ViewData["User"] = user;
-
         return Page();
     }
 
-    // This method runs when the delete button is clicked (POST request)
-    // id parameter comes from the form
     public IActionResult OnPost(int? id)
     {
-        // Step 1: Check if user ID was provided
+        if (HttpContext.Session.GetString("UserRole") != "Admin")
+        {
+            return RedirectToPage("/login");
+        }
+
         if (id == null)
         {
             return NotFound();
         }
 
-        // Step 2: Get user from database
+        var currentUserIdStr = HttpContext.Session.GetString("UserId");
+        if (currentUserIdStr == id.Value.ToString())
+        {
+            TempData["ErrorMessage"] = "You cannot delete your own active administrator account.";
+            return RedirectToPage("./Index");
+        }
+
         var user = _db.Users.Find(id.Value);
         if (user == null)
         {
@@ -58,13 +61,23 @@ public class DeleteModel : PageModel
             return RedirectToPage("./Index");
         }
 
-        // Step 3: Delete user from database
+        if (_db.Orders.Any(o => o.UserID == id.Value))
+        {
+            TempData["ErrorMessage"] = $"Cannot delete '{user.Name}' because they have historical orders on record.";
+            return RedirectToPage("./Index");
+        }
+
+        // Remove user's reviews before deleting user account
+        var userReviews = _db.Reviews.Where(r => r.UserID == id.Value).ToList();
+        if (userReviews.Count > 0)
+        {
+            _db.Reviews.RemoveRange(userReviews);
+        }
+
         _db.Users.Remove(user);
         _db.SaveChanges();
 
-        // Step 4: Show success message and redirect to user list
-        TempData["SuccessMessage"] = "User deleted successfully!";
+        TempData["SuccessMessage"] = "User account deleted successfully.";
         return RedirectToPage("./Index");
     }
 }
-

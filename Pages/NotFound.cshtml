@@ -1,0 +1,32 @@
+@page
+@model StyleSphere.Pages.NotFoundModel
+@{
+    bool isForbidden = Model.StatusCodeValue == 403;
+    ViewData["Title"] = isForbidden ? "Access Restricted - StyleSphere" : "Page Not Found - StyleSphere";
+    ViewData["MetaDescription"] = isForbidden ? "You do not have permission to view this resource." : "The requested page could not be found.";
+    Layout = "_CustomerLayout";
+}
+
+<div class="container py-5">
+    <div style="max-width: 540px; margin: 40px auto;" class="clean-card text-center">
+        <div class="text-uppercase small fw-bold text-secondary letter-spacing-1 mb-2">Error @Model.StatusCodeValue</div>
+        @if (isForbidden)
+        {
+            <h1 class="h3 fw-bold mb-3 text-uppercase">Access Restricted</h1>
+            <p class="text-secondary small mb-4">
+                Your account does not have administrator privileges required to access this management console.
+            </p>
+        }
+        else
+        {
+            <h1 class="h3 fw-bold mb-3 text-uppercase">Page Not Found</h1>
+            <p class="text-secondary small mb-4">
+                The page or item you are looking for has moved, sold out, or does not exist in our current collection.
+            </p>
+        }
+        <div class="d-flex justify-content-center gap-3">
+            <a asp-page="/Index" class="btn btn-solid">Return to Storefront</a>
+            <a asp-page="/Products" class="btn btn-outline-minimal">Explore Collection</a>
+        </div>
+    </div>
+</div>

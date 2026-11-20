@@ -6,47 +6,44 @@
 }
 
 <div class="py-2" style="max-width: 700px; margin: 0 auto;">
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex justify-content-between align-items-baseline mb-4 pb-2 border-bottom">
         <div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-1 small">
-                    <li class="breadcrumb-item"><a asp-page="/Admin/Index" class="text-decoration-none">Admin</a></li>
-                    <li class="breadcrumb-item"><a asp-page="Index" class="text-decoration-none">Categories</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Delete Category</li>
+                    <li class="breadcrumb-item"><a asp-page="/Admin/Index" class="text-secondary">Admin</a></li>
+                    <li class="breadcrumb-item"><a asp-page="Index" class="text-secondary">Categories</a></li>
+                    <li class="breadcrumb-item active text-dark" aria-current="page">Delete Category</li>
                 </ol>
             </nav>
-            <h1 class="h2 fw-bold mb-0 text-danger">Remove Category</h1>
+            <h1 class="h3 fw-bold mb-0 text-uppercase letter-spacing-1 text-danger">Remove Category</h1>
         </div>
-        <a asp-page="Index" class="btn btn-outline-secondary rounded-pill px-3 py-2 btn-sm fw-semibold">
-            <i class="bi bi-arrow-left me-1"></i> Cancel
+        <a asp-page="Index" class="btn btn-sm btn-outline-minimal">
+            &larr; Cancel
         </a>
     </div>
 
     @if (category != null)
     {
-        <div class="card border-0 rounded-4 shadow-sm p-4 p-md-5">
-            <div class="alert alert-danger rounded-4 d-flex align-items-center gap-3 p-3 mb-4">
-                <i class="bi bi-exclamation-triangle-fill fs-2"></i>
-                <div>
-                    <h5 class="fw-bold mb-1">Confirm Permanent Deletion</h5>
-                    <p class="small mb-0">Are you sure you want to remove <strong>@category.Name</strong>? Associated products may become unassigned.</p>
-                </div>
+        <div class="clean-card">
+            <div class="alert alert-danger rounded-0 p-3 mb-4">
+                <h2 class="h6 fw-bold mb-1 text-uppercase">Confirm Permanent Deletion</h2>
+                <p class="small mb-0">Are you sure you want to remove <strong>@category.Name</strong>?</p>
             </div>
 
-            <div class="p-3 bg-light rounded-4 mb-4 border">
-                <h5 class="fw-bold mb-1">@category.Name</h5>
-                <div class="text-muted small mb-2">@(!string.IsNullOrEmpty(category.Description) ? category.Description : "No description")</div>
+            <div class="p-3 bg-light mb-4 border">
+                <div class="fw-bold mb-1">@category.Name</div>
+                <div class="text-secondary small mb-2">@(!string.IsNullOrEmpty(category.Description) ? category.Description : "No description")</div>
                 <div class="small">
-                    Assigned Catalog Items: <span class="badge bg-primary-subtle text-primary rounded-pill">@(category.Products?.Count ?? 0) products</span>
+                    Assigned Catalog Items: <span class="badge bg-white text-dark border rounded-0">@(category.Products?.Count ?? 0) products</span>
                 </div>
             </div>
 
             <form method="post" class="d-flex gap-2">
                 <input type="hidden" name="id" value="@category.CategoryID" />
-                <button type="submit" class="btn btn-danger rounded-pill px-4 py-2 fw-semibold">
-                    <i class="bi bi-trash3 me-1"></i> Delete Category
+                <button type="submit" class="btn btn-danger rounded-0 px-4 py-2 text-uppercase small fw-bold">
+                    Delete Category
                 </button>
-                <a asp-page="Index" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold">
+                <a asp-page="Index" class="btn btn-outline-minimal">
                     Cancel
                 </a>
             </form>

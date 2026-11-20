@@ -1,34 +1,34 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using StyleSphere.Data;
-using StyleSphere.Models;
 
 namespace StyleSphere.Pages.Admin.Products;
 
-// This page displays all products for admin management
 public class IndexModel : PageModel
 {
-    // Database connection
     private readonly AppDbContext _db;
 
-    // Constructor
     public IndexModel(AppDbContext db)
     {
         _db = db;
     }
 
-    // This method runs when the page loads (GET request)
-    public void OnGet()
+    public IActionResult OnGet()
     {
-        // Step 1: Get all products from database
-        // Include Category information so we can display category names
+        if (HttpContext.Session.GetString("UserRole") != "Admin")
+        {
+            return RedirectToPage("/login");
+        }
+
         var products = _db.Products
+            .AsNoTracking()
             .Include(p => p.Category)
             .OrderBy(p => p.Name)
+            .Take(200)
             .ToList();
 
-        // Step 2: Store products in ViewData so the .cshtml file can use them
         ViewData["Products"] = products;
+        return Page();
     }
 }
-

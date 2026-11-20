@@ -2,6 +2,7 @@
 @model StyleSphere.Pages.cartModel
 @{
     ViewData["Title"] = "Shopping Bag - StyleSphere";
+    ViewData["MetaDescription"] = "Review your selected StyleSphere garments and proceed to checkout.";
     Layout = "_CustomerLayout";
     
     var cart = ViewData["Cart"] as StyleSphere.Models.Cart;
@@ -11,7 +12,7 @@
 }
 
 <div class="container py-4 pb-5">
-    <div class="d-flex justify-content-between align-items-baseline mb-4 pb-2 border-bottom">
+    <div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-4 pb-2 border-bottom">
         <div>
             <h1 class="h3 fw-bold mb-1 text-uppercase letter-spacing-1">Shopping Bag</h1>
             <span class="text-secondary small">Review chosen items before checkout</span>
@@ -46,11 +47,11 @@
                                             <div style="width: 60px; height: 80px; overflow: hidden; background: #f4f4f4; border: 1px solid var(--border);" class="flex-shrink-0">
                                                 @if (!string.IsNullOrEmpty(item.Product?.ImageName))
                                                 {
-                                                    <img src="~/images/products/@item.Product.ImageName" alt="@item.Product.Name" style="width: 100%; height: 100%; object-fit: cover;" />
+                                                    <img src="~/images/products/@item.Product.ImageName" alt="@item.Product.Name" width="60" height="80" style="width: 100%; height: 100%; object-fit: cover;" />
                                                 }
                                                 else
                                                 {
-                                                    <div class="d-flex align-items-center justify-content-center h-100 text-muted small">No photo</div>
+                                                    <div class="d-flex align-items-center justify-content-center h-100 text-secondary small">No photo</div>
                                                 }
                                             </div>
                                             <div>
@@ -68,8 +69,9 @@
                                         <form method="post" asp-page-handler="UpdateQuantity" class="d-flex align-items-center gap-2">
                                             <input type="hidden" name="productId" value="@item.ProductID" />
                                             <input type="number" name="quantity" value="@item.Quantity" min="1" max="@(item.Product?.Stock ?? 99)" 
+                                                   aria-label="Quantity for @(item.Product?.Name ?? "item")"
                                                    class="form-control form-control-sm text-center rounded-0 shadow-none" style="width: 60px;" />
-                                            <button type="submit" class="btn btn-sm btn-outline-minimal py-1 px-2" title="Update">
+                                            <button type="submit" class="btn btn-sm btn-outline-minimal py-1 px-2" title="Update quantity">
                                                 Update
                                             </button>
                                         </form>
@@ -99,7 +101,7 @@
             <!-- Right Side: Order Summary -->
             <div class="col-lg-4">
                 <div class="summary-box-minimal">
-                    <h4>Order Summary</h4>
+                    <h2 class="h6 fw-bold text-uppercase letter-spacing-1 mb-3 pb-2 border-bottom">Order Summary</h2>
                     <div class="summary-line">
                         <span>Subtotal</span>
                         <span>$@subtotal.ToString("F2")</span>
@@ -128,8 +130,8 @@
     }
     else
     {
-        <div class="py-5 text-center text-muted border my-4">
-            <h4 class="fw-bold mb-2">Your Bag is Empty</h4>
+        <div class="py-5 text-center text-secondary border my-4">
+            <h2 class="h4 fw-bold mb-2">Your Bag is Empty</h2>
             <p class="small mb-4">Discover our curated wardrobe essentials and place your first order.</p>
             <a asp-page="/Products" class="btn btn-sm btn-solid">
                 Explore Catalog

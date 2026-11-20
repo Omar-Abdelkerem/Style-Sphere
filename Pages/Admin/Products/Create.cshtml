@@ -5,59 +5,56 @@
     var categories = ViewData["Categories"] as List<StyleSphere.Models.Category>;
 }
 
-<div class="py-2" style="max-width: 800px; margin: 0 auto;">
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+<div class="py-2" style="max-width: 760px; margin: 0 auto;">
+    <div class="d-flex justify-content-between align-items-baseline mb-4 pb-2 border-bottom">
         <div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-1 small">
-                    <li class="breadcrumb-item"><a asp-page="/Admin/Index" class="text-decoration-none">Admin</a></li>
-                    <li class="breadcrumb-item"><a asp-page="Index" class="text-decoration-none">Products</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">New Product</li>
+                    <li class="breadcrumb-item"><a asp-page="/Admin/Index" class="text-secondary">Admin</a></li>
+                    <li class="breadcrumb-item"><a asp-page="Index" class="text-secondary">Products</a></li>
+                    <li class="breadcrumb-item active text-dark" aria-current="page">New Product</li>
                 </ol>
             </nav>
-            <h1 class="h2 fw-bold mb-0">Add New Product</h1>
+            <h1 class="h3 fw-bold mb-0 text-uppercase letter-spacing-1">Add New Product</h1>
         </div>
-        <a asp-page="Index" class="btn btn-outline-secondary rounded-pill px-3 py-2 btn-sm fw-semibold">
-            <i class="bi bi-arrow-left me-1"></i> Back to Products
+        <a asp-page="Index" class="btn btn-sm btn-outline-minimal">
+            &larr; Back to Products
         </a>
     </div>
 
     @if (ViewData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger rounded-4 p-3 mb-4" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i> @ViewData["ErrorMessage"]
+        <div class="alert alert-danger rounded-0 py-2 px-3 small mb-4" role="alert">
+            @ViewData["ErrorMessage"]
         </div>
     }
 
-    <div class="card border-0 rounded-4 shadow-sm p-4 p-md-5">
+    <div class="clean-card">
         <form method="post" enctype="multipart/form-data">
             <div class="mb-3">
-                <label for="name" class="form-label small fw-bold text-muted">Product Name <span class="text-danger">*</span></label>
-                <input type="text" name="name" id="name" class="form-control rounded-pill px-3 shadow-none" placeholder="e.g. Classic Oxford Cotton Shirt" required />
+                <label for="name" class="form-label">Product Name <span class="text-danger">*</span></label>
+                <input type="text" name="name" id="name" class="form-control" placeholder="e.g. Classic Oxford Cotton Shirt" maxlength="100" required />
             </div>
 
             <div class="mb-3">
-                <label for="description" class="form-label small fw-bold text-muted">Description</label>
-                <textarea name="description" id="description" rows="3" class="form-control rounded-4 shadow-none px-3" placeholder="Describe the materials, silhouette, and details..."></textarea>
+                <label for="description" class="form-label">Description</label>
+                <textarea name="description" id="description" rows="3" class="form-control" maxlength="1000" placeholder="Describe the materials, silhouette, and details..."></textarea>
             </div>
 
             <div class="row g-3 mb-3">
                 <div class="col-sm-6">
-                    <label for="price" class="form-label small fw-bold text-muted">Price ($) <span class="text-danger">*</span></label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light rounded-start-pill border-end-0 text-muted ps-3">$</span>
-                        <input type="number" name="price" id="price" step="0.01" min="0.01" class="form-control rounded-end-pill border-start-0 shadow-none ps-2" placeholder="49.99" required />
-                    </div>
+                    <label for="price" class="form-label">Price (USD) <span class="text-danger">*</span></label>
+                    <input type="number" name="price" id="price" step="0.01" min="0.01" max="999999.99" class="form-control" placeholder="49.99" required />
                 </div>
                 <div class="col-sm-6">
-                    <label for="stock" class="form-label small fw-bold text-muted">Initial Stock Units <span class="text-danger">*</span></label>
-                    <input type="number" name="stock" id="stock" min="0" class="form-control rounded-pill px-3 shadow-none" placeholder="25" required />
+                    <label for="stock" class="form-label">Initial Stock Units <span class="text-danger">*</span></label>
+                    <input type="number" name="stock" id="stock" min="0" max="100000" class="form-control" placeholder="25" required />
                 </div>
             </div>
 
             <div class="mb-3">
-                <label for="categoryId" class="form-label small fw-bold text-muted">Category Department <span class="text-danger">*</span></label>
-                <select name="categoryId" id="categoryId" class="form-select rounded-pill px-3 shadow-none" required>
+                <label for="categoryId" class="form-label">Category Department <span class="text-danger">*</span></label>
+                <select name="categoryId" id="categoryId" class="form-select" required>
                     <option value="">-- Choose Category --</option>
                     @if (categories != null)
                     {
@@ -70,16 +67,16 @@
             </div>
 
             <div class="mb-4">
-                <label for="imageFile" class="form-label small fw-bold text-muted">Product Image (File or SVG)</label>
-                <input type="file" name="imageFile" id="imageFile" accept="image/*" class="form-control rounded-pill px-3 shadow-none" />
-                <div class="form-text small">Accepted formats: JPG, PNG, WebP, SVG, GIF (Max 5MB).</div>
+                <label for="imageFile" class="form-label">Product Image</label>
+                <input type="file" name="imageFile" id="imageFile" accept=".jpg,.jpeg,.png,.gif,.webp" class="form-control" />
+                <div class="form-text small text-secondary">Accepted formats: JPG, PNG, WebP, GIF (Max 5MB, verified by magic bytes).</div>
             </div>
 
-            <div class="d-flex gap-2 pt-2 border-top">
-                <button type="submit" class="btn btn-primary-custom rounded-pill px-4 py-2 fw-semibold">
-                    <i class="bi bi-check-lg me-1"></i> Save Product
+            <div class="d-flex gap-2 pt-3 border-top">
+                <button type="submit" class="btn btn-solid">
+                    Save Product
                 </button>
-                <a asp-page="Index" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold">
+                <a asp-page="Index" class="btn btn-outline-minimal">
                     Cancel
                 </a>
             </div>

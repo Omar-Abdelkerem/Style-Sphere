@@ -1,7 +1,7 @@
 /* ==========================================================================
    StyleSphere - Clean Minimalist E-Commerce Architecture
    Inspired by contemporary editorial fashion brands (COS, Arket, Zara, SSENSE)
-   No gradients, no gimmicks, no fluff.
+   No gradients, no gimmicks, no fluff. WCAG AA Accessible.
    ========================================================================== */
 
 :root {
@@ -9,9 +9,9 @@
     --black-hover: #262626;
     --dark: #1a1a1a;
     --gray-900: #222222;
-    --gray-700: #4a4a4a;
-    --gray-600: #666666;
-    --gray-500: #888888;
+    --gray-700: #3d3d3d;
+    --gray-600: #525252;
+    --gray-500: #595959; /* WCAG AA/AAA 7.0:1 contrast on white */
     --gray-300: #d4d4d4;
     --gray-200: #e5e5e5;
     --gray-100: #f4f4f4;
@@ -30,6 +30,13 @@ body {
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+}
+
+/* Ensure Bootstrap secondary/muted utility classes pass WCAG AA contrast on both #fff and #f4f4f4 */
+.text-secondary,
+.text-muted {
+    color: var(--gray-600) !important;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -46,6 +53,17 @@ a {
 
 a:hover {
     color: var(--gray-600);
+}
+
+/* Visible Keyboard Accessibility Focus Ring */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--black) !important;
+    outline-offset: 2px !important;
+    box-shadow: none !important;
 }
 
 /* Top Notification Bar */
@@ -93,6 +111,7 @@ a:hover {
 .nav-link:hover,
 .nav-link.active {
     color: var(--black) !important;
+    font-weight: 600;
 }
 
 /* Search Box */
@@ -109,7 +128,6 @@ a:hover {
     background-color: var(--white);
     border-color: var(--black);
     box-shadow: none;
-    outline: none;
 }
 
 /* Buttons */
@@ -301,7 +319,7 @@ a:hover {
 }
 
 .product-meta-stock.low {
-    color: #b91c1c;
+    color: #991b1b; /* WCAG AA contrast 8.3:1 on white */
     font-weight: 600;
 }
 
@@ -413,7 +431,8 @@ a:hover {
     padding: 24px;
 }
 
-.summary-box-minimal h4 {
+.summary-box-minimal h4,
+.summary-box-minimal h2 {
     font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.05em;
@@ -531,9 +550,21 @@ a:hover {
 
 @media (max-width: 768px) {
     .hero-minimal {
-        padding: 40px 20px;
+        padding: 36px 20px;
+        margin-bottom: 32px;
     }
     .hero-minimal h1 {
-        font-size: 2rem;
+        font-size: 1.9rem;
+    }
+    .clean-card {
+        padding: 20px;
+    }
+    .brand-text {
+        font-size: 1.15rem;
+        letter-spacing: 0.1em;
+    }
+    .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+        gap: 20px 14px;
     }
 }

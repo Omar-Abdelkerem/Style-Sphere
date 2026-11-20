@@ -2,6 +2,7 @@
 @model StyleSphere.Pages.IndexModel
 @{
     ViewData["Title"] = "StyleSphere - Contemporary Fashion & Essentials";
+    ViewData["MetaDescription"] = "Discover StyleSphere's Spring/Summer 2026 collection: tailored wool outerwear, breathable organic cottons, footwear, and artisan leather accessories.";
     Layout = "_CustomerLayout";
     var products = ViewData["Products"] as List<StyleSphere.Models.Product>;
 }
@@ -16,7 +17,7 @@
                 <p>
                     A curated selection of tailored outerwear, breathable organic cottons, and contemporary leather goods engineered for daily refinement.
                 </p>
-                <div class="d-flex gap-3">
+                <div class="d-flex flex-wrap gap-3">
                     <a asp-page="/Products" class="btn btn-solid">
                         Shop All Products
                     </a>
@@ -51,17 +52,17 @@
         <div class="product-grid">
             @foreach (var product in products)
             {
-                <div class="product-item">
+                <article class="product-item">
                     <!-- Real Product Photo Link -->
                     <a asp-page="/details" asp-route-id="@product.ProductID" class="product-image-container text-decoration-none">
                         @if (!string.IsNullOrEmpty(product.ImageName))
                         {
-                            <img src="~/images/products/@product.ImageName" alt="@product.Name" loading="lazy" />
+                            <img src="~/images/products/@product.ImageName" alt="@product.Name" width="600" height="800" loading="lazy" />
                         }
                         else
                         {
-                            <div class="d-flex align-items-center justify-content-center h-100 w-100 text-muted">
-                                <i class="bi bi-image fs-2"></i>
+                            <div class="d-flex align-items-center justify-content-center h-100 w-100 text-secondary">
+                                <i class="bi bi-image fs-2" aria-hidden="true"></i>
                             </div>
                         }
                     </a>
@@ -72,9 +73,11 @@
                     </div>
 
                     <!-- Title -->
-                    <a asp-page="/details" asp-route-id="@product.ProductID" class="text-decoration-none">
-                        <div class="product-meta-title">@product.Name</div>
-                    </a>
+                    <h3 class="h6 mb-1">
+                        <a asp-page="/details" asp-route-id="@product.ProductID" class="text-decoration-none product-meta-title d-block">
+                            @product.Name
+                        </a>
+                    </h3>
 
                     <!-- Price -->
                     <div class="product-meta-price">
@@ -82,8 +85,8 @@
                     </div>
 
                     <!-- Stock Status -->
-                    <div class="product-meta-stock @(product.Stock <= 15 ? "low" : "")">
-                        @if (product.Stock > 15)
+                    <div class="product-meta-stock @(product.Stock <= 10 ? "low" : "")">
+                        @if (product.Stock > 10)
                         {
                             <span>In Stock (@product.Stock)</span>
                         }
@@ -112,13 +115,13 @@
                     {
                         <button class="btn btn-add-bag disabled" disabled style="opacity: 0.5;">Out of Stock</button>
                     }
-                </div>
+                </article>
             }
         </div>
     }
     else
     {
-        <div class="py-5 text-center text-muted">
+        <div class="py-5 text-center text-secondary">
             <p>No products available currently.</p>
         </div>
     }

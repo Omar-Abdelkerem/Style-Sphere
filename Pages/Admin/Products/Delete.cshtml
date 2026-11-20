@@ -6,55 +6,52 @@
 }
 
 <div class="py-2" style="max-width: 700px; margin: 0 auto;">
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex justify-content-between align-items-baseline mb-4 pb-2 border-bottom">
         <div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-1 small">
-                    <li class="breadcrumb-item"><a asp-page="/Admin/Index" class="text-decoration-none">Admin</a></li>
-                    <li class="breadcrumb-item"><a asp-page="Index" class="text-decoration-none">Products</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Delete Confirmation</li>
+                    <li class="breadcrumb-item"><a asp-page="/Admin/Index" class="text-secondary">Admin</a></li>
+                    <li class="breadcrumb-item"><a asp-page="Index" class="text-secondary">Products</a></li>
+                    <li class="breadcrumb-item active text-dark" aria-current="page">Delete Confirmation</li>
                 </ol>
             </nav>
-            <h1 class="h2 fw-bold mb-0 text-danger">Remove Product</h1>
+            <h1 class="h3 fw-bold mb-0 text-uppercase letter-spacing-1 text-danger">Remove Product</h1>
         </div>
-        <a asp-page="Index" class="btn btn-outline-secondary rounded-pill px-3 py-2 btn-sm fw-semibold">
-            <i class="bi bi-arrow-left me-1"></i> Cancel
+        <a asp-page="Index" class="btn btn-sm btn-outline-minimal">
+            &larr; Cancel
         </a>
     </div>
 
     @if (product != null)
     {
-        <div class="card border-0 rounded-4 shadow-sm p-4 p-md-5">
-            <div class="alert alert-danger rounded-4 d-flex align-items-center gap-3 p-3 mb-4">
-                <i class="bi bi-exclamation-triangle-fill fs-2"></i>
-                <div>
-                    <h5 class="fw-bold mb-1">Confirm Permanent Deletion</h5>
-                    <p class="small mb-0">Are you sure you want to permanently delete <strong>@product.Name</strong> from the active database?</p>
-                </div>
+        <div class="clean-card">
+            <div class="alert alert-danger rounded-0 p-3 mb-4">
+                <h2 class="h6 fw-bold mb-1 text-uppercase">Confirm Permanent Deletion</h2>
+                <p class="small mb-0">Are you sure you want to permanently delete <strong>@product.Name</strong> from the catalog?</p>
             </div>
 
-            <div class="p-3 bg-light rounded-4 mb-4 border">
+            <div class="p-3 bg-light mb-4 border">
                 <div class="d-flex align-items-center gap-3">
                     @if (!string.IsNullOrEmpty(product.ImageName))
                     {
-                        <div style="width: 80px; height: 80px; border-radius: 12px; overflow: hidden; background: white; border: 1px solid var(--border-color);" class="flex-shrink-0">
+                        <div style="width: 75px; height: 95px; overflow: hidden; background: white; border: 1px solid var(--border);" class="flex-shrink-0">
                             <img src="~/images/products/@product.ImageName" alt="@product.Name" style="width: 100%; height: 100%; object-fit: cover;" />
                         </div>
                     }
                     <div>
-                        <h5 class="fw-bold mb-1">@product.Name</h5>
-                        <div class="text-muted small mb-1">Price: <strong class="text-dark">$@product.Price.ToString("F2")</strong> | Stock: <strong>@product.Stock units</strong></div>
-                        <div class="text-muted small">Category: <span class="badge bg-primary-subtle text-primary rounded-pill">@(product.Category?.Name ?? "None")</span></div>
+                        <div class="fw-bold mb-1">@product.Name</div>
+                        <div class="text-secondary small mb-1">Price: <strong class="text-dark">$@product.Price.ToString("F2")</strong> | Stock: <strong>@product.Stock units</strong></div>
+                        <div class="text-secondary small">Category: <span class="badge bg-white text-dark border rounded-0">@(product.Category?.Name ?? "None")</span></div>
                     </div>
                 </div>
             </div>
 
             <form method="post" class="d-flex gap-2">
                 <input type="hidden" name="id" value="@product.ProductID" />
-                <button type="submit" class="btn btn-danger rounded-pill px-4 py-2 fw-semibold">
-                    <i class="bi bi-trash3 me-1"></i> Yes, Permanently Delete
+                <button type="submit" class="btn btn-danger rounded-0 px-4 py-2 text-uppercase small fw-bold">
+                    Yes, Permanently Delete
                 </button>
-                <a asp-page="Index" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold">
+                <a asp-page="Index" class="btn btn-outline-minimal">
                     No, Return to Catalog
                 </a>
             </form>

@@ -2,11 +2,13 @@
 @model StyleSphere.Pages.PlaceOrderModel
 @{
     ViewData["Title"] = "Checkout - StyleSphere";
+    ViewData["MetaDescription"] = "Finalize your StyleSphere order and delivery preferences.";
     Layout = "_CustomerLayout";
     
     var subtotal = ViewData["Subtotal"] as decimal? ?? 0;
     var tax = ViewData["Tax"] as decimal? ?? 0;
     var total = ViewData["Total"] as decimal? ?? 0;
+    var cartItems = ViewData["CartItems"] as List<StyleSphere.Models.CartItem>;
 }
 
 <div class="container py-4 pb-5">
@@ -20,20 +22,29 @@
         </a>
     </div>
 
+    @if (ViewData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger rounded-0 py-2 px-3 small mb-4" role="alert">
+            @ViewData["ErrorMessage"]
+        </div>
+    }
+
     <div class="row g-5">
         <!-- Form -->
         <div class="col-lg-7">
             <div class="clean-card mb-4">
                 <form method="post">
                     <div class="mb-4 pb-3 border-bottom">
-                        <div class="form-label mb-2">1. Delivery Destination</div>
-                        <div class="p-3 bg-light border small text-secondary">
-                            Standard shipping to account destination address. Estimated delivery within 3-5 business days.
+                        <label for="deliveryAddress" class="form-label mb-2">1. Delivery Destination Address</label>
+                        <input type="text" name="deliveryAddress" id="deliveryAddress" class="form-control mb-2" 
+                               placeholder="Street address, apartment, city, postal code" maxlength="255" required />
+                        <div class="small text-secondary">
+                            Complimentary domestic express shipping. Estimated delivery within 3–5 business days.
                         </div>
                     </div>
 
                     <div class="mb-4">
-                        <div class="form-label mb-2">2. Payment Method</div>
+                        <label for="paymentMethod" class="form-label mb-2">2. Payment Method</label>
                         <select name="paymentMethod" id="paymentMethod" class="form-select rounded-0" required>
                             <option value="Credit Card">Credit Card (Visa, Mastercard, Amex)</option>
                             <option value="Debit Card">Debit Card</option>
@@ -56,7 +67,19 @@
         <!-- Summary -->
         <div class="col-lg-5">
             <div class="summary-box-minimal">
-                <h4>Order Summary</h4>
+                <h2 class="h6 fw-bold text-uppercase letter-spacing-1 mb-3 pb-2 border-bottom">Order Summary</h2>
+                @if (cartItems != null && cartItems.Count > 0)
+                {
+                    <div class="mb-3 pb-3 border-bottom">
+                        @foreach (var item in cartItems)
+                        {
+                            <div class="d-flex justify-content-between align-items-center small mb-2">
+                                <span class="text-dark">@(item.Product?.Name ?? "Item") <span class="text-secondary">&times; @item.Quantity</span></span>
+                                <span class="fw-semibold">$@(((item.Product?.Price ?? 0) * item.Quantity).ToString("F2"))</span>
+                            </div>
+                        }
+                    </div>
+                }
                 <div class="summary-line">
                     <span>Items Subtotal</span>
                     <span>$@subtotal.ToString("F2")</span>
@@ -75,7 +98,7 @@
                 </div>
 
                 <div class="mt-4 pt-3 border-top small text-secondary">
-                    All orders are subject to our standard terms and free 30-day return policy.
+                    All orders are subject to our standard terms and complimentary 30-day return policy.
                 </div>
             </div>
         </div>

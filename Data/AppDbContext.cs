@@ -21,6 +21,7 @@ public class AppDbContext : DbContext
     public DbSet<Shipper> Shippers { get; set; }
     public DbSet<Shipment> Shipments { get; set; }
     public DbSet<Review> Reviews { get; set; }
+    public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -33,6 +34,7 @@ public class AppDbContext : DbContext
             entity.HasKey(e => e.UserID);
             entity.Property(e => e.Email).IsRequired();
             entity.HasIndex(e => e.Email).IsUnique();
+            entity.Property(e => e.SessionVersion).HasDefaultValue(1);
         });
 
         // Configure Category entity
@@ -40,6 +42,7 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("Category");
             entity.HasKey(e => e.CategoryID);
+            entity.HasIndex(e => e.Name).IsUnique();
         });
 
         // Configure Product entity
@@ -48,6 +51,8 @@ public class AppDbContext : DbContext
             entity.ToTable("Product");
             entity.HasKey(e => e.ProductID);
             entity.Property(e => e.ImageName).HasColumnName("Image");
+            entity.HasIndex(e => e.CategoryID);
+            entity.HasIndex(e => e.Stock);
             entity.HasOne(e => e.Category)
                   .WithMany(c => c.Products)
                   .HasForeignKey(e => e.CategoryID)
@@ -59,6 +64,7 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("Cart");
             entity.HasKey(e => e.CartID);
+            entity.HasIndex(e => e.UserID);
             entity.HasOne(e => e.User)
                   .WithMany()
                   .HasForeignKey(e => e.UserID)
@@ -70,6 +76,7 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("CartItem");
             entity.HasKey(e => e.CartItemID);
+            entity.HasIndex(e => new { e.CartID, e.ProductID }).IsUnique();
             entity.HasOne(e => e.Cart)
                   .WithMany(c => c.CartItems)
                   .HasForeignKey(e => e.CartID)
@@ -86,6 +93,9 @@ public class AppDbContext : DbContext
             entity.ToTable("Order");
             entity.HasKey(e => e.OrderID);
             entity.Property(e => e.OrderDate).HasColumnType("date");
+            entity.HasIndex(e => e.UserID);
+            entity.HasIndex(e => e.Status);
+            entity.HasIndex(e => e.OrderDate);
             entity.HasOne(e => e.User)
                   .WithMany()
                   .HasForeignKey(e => e.UserID)
@@ -158,6 +168,18 @@ public class AppDbContext : DbContext
             // Ensure one review per user per product
             entity.HasIndex(e => new { e.UserID, e.ProductID }).IsUnique();
         });
+
+        // Configure PasswordResetToken entity
+        modelBuilder.Entity<PasswordResetToken>(entity =>
+        {
+            entity.ToTable("PasswordResetToken");
+            entity.HasKey(e => e.TokenID);
+            entity.HasIndex(e => e.TokenHash).IsUnique();
+            entity.HasIndex(e => e.UserID);
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(e => e.UserID)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 }
-

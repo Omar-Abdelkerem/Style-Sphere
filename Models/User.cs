@@ -27,5 +27,7 @@ public class User
     [Required]
     [StringLength(20)]
     public string Role { get; set; } = "Customer";
-}
 
+    // Incremented on password change or explicit logout to invalidate all active sessions
+    public int SessionVersion { get; set; } = 1;
+}

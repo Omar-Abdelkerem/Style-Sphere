@@ -1,194 +1,99 @@
-# StyleSphere 🛍️✨
+# StyleSphere
 
 [![.NET 8.0](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
 [![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-Razor%20Pages-2C8EBB)](https://learn.microsoft.com/aspnet/core)
-[![EF Core](https://img.shields.io/badge/Entity%20Framework-Core%208-512BD4)](https://learn.microsoft.com/ef/core)
+[![EF Core](https://img.shields.io/badge/Entity%20Framework-Core%208.0.34-512BD4)](https://learn.microsoft.com/ef/core)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Tests](https://img.shields.io/badge/Tests-45%20Passed-success)](tests/StyleSphere.Tests)
 
-**StyleSphere** is an editorial-grade fashion e-commerce web application built on **ASP.NET Core 8 Razor Pages** and **Entity Framework Core**. Featuring a clean, high-fashion aesthetic (inspired by COS, SSENSE, and Zara), it delivers a seamless end-to-end shopping experience for customers and a full-featured management dashboard for store administrators.
-
-Designed for instant zero-configuration local runs, Docker containers, and turnkey cloud deployments.
+**StyleSphere** is a production-hardened fashion e-commerce web application built on **ASP.NET Core 8 Razor Pages** and **Entity Framework Core**. Featuring a monochrome editorial aesthetic inspired by COS, SSENSE, and Zara, it provides an end-to-end customer shopping journey and an administrator management console.
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
-### 🛍️ Customer Experience
-- **Editorial Fashion Catalog**: Curated product categories across Men, Women, Footwear, and Accessories with real high-resolution photography.
-- **Dynamic Filtering & Live Search**: Instant category pills and client-side keyword search across titles and descriptions.
-- **Product Showcase**: Detailed views with stock status, pricing, sizing details, and verified customer reviews.
-- **Interactive Shopping Bag**: Session-backed shopping cart with inline quantity steppers and real-time total calculations.
-- **Order Placement & Tracking**: Streamlined checkout pipeline and customer order history.
-- **Customer Authentication**: Secure session authentication, user profile management, password resets, and 1-click demo logins.
+### Storefront & Customer Experience
+- **Editorial Fashion Catalog**: Curated collections across Men, Women, Footwear, and Accessories with high-resolution product photography and SQL-paginated browsing.
+- **Dynamic Filtering & Search**: Instant category filtering and keyword search across product titles and descriptions.
+- **Product Showcase & Verified Reviews**: Detailed specification views, live inventory status, and customer review submissions protected against stored XSS.
+- **Shopping Bag & Checkout**: Session-authenticated bag with live header badge counter, inline quantity controls, itemized tax (14% VAT), and delivery destination capture.
+- **Client Care & Policies**: Dedicated policies page (`/Policies`) covering shipping, returns, privacy, and terms of service, plus dynamic `/sitemap.xml` and `/robots.txt`.
 
-### ⚙️ Admin Control Center
-- **Product Management**: Full CRUD operations for products with inventory tracking and image association.
-- **Category Control**: Organize fashion lines into custom categories.
-- **Order Tracking**: Inspect customer orders, line items, and payment/fulfillment states.
-- **User Administration**: Manage system users and role privileges (`Admin` / `Customer`).
-- **Reports & Analytics**: Quick overview of inventory levels and store performance.
-
-### 🚀 Architecture & Portability
-- **Zero-Config Database**: Auto-initializes and seeds SQLite (`StyleSphere.db`) on startup—no SQL Server installation required.
-- **Dual Database Engine**: Seamlessly switch between SQLite and Microsoft SQL Server by updating the connection string.
-- **Production-Ready Docker**: Multi-stage `Dockerfile` and `docker-compose.yml` for 1-command containerization.
+### Security & Production Hardening
+- **Cryptographic Password Hashing**: Salted **PBKDF2-HMAC-SHA512** with **210,000 iterations** and constant-time comparison (`CryptographicOperations.FixedTimeEquals`).
+- **Server-Side Session Versioning**: Every account tracks a `SessionVersion` counter in the database. Logging out, changing a password, or resetting a password increments `SessionVersion`, immediately invalidating all other active sessions across devices.
+- **Single-Use Hashed Password Reset Tokens**: Password recovery (`/ForgotPassword` & `/ResetPassword`) generates 32-byte cryptographic tokens stored strictly as SHA-256 hashes with configurable expiration (`Security:PasswordResetTokenExpiryMinutes`).
+- **Server-Side Authorization Filter**: Global `AuthPageFilter` enforces authentication on all customer routes and strict `Admin` role verification (`403 Forbidden`) across all `/Admin/**` routes.
+- **Magic-Byte File Upload Validation**: Product image uploads inspect actual file header signatures (JPEG, PNG, GIF, WebP magic bytes), enforce a 5 MB limit, reject SVG/executable extensions, and store files under generated UUID filenames.
+- **CSRF, Rate Limiting & Security Headers**:
+  - Strict `SameSite` + `HttpOnly` cookies, anti-forgery tokens on all state-changing forms, and same-origin `Origin`/`Sec-Fetch-Site` enforcement.
+  - Per-IP fixed-window rate limiting on authentication and public form endpoints (`429 Too Many Requests`).
+  - Strict `Content-Security-Policy` (no `'unsafe-inline'` scripts), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`, NUL-byte request filtering, and `.map` source-map blocking.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-- **Framework**: [.NET 8 SDK](https://dotnet.microsoft.com/)
-- **Web Layer**: ASP.NET Core Razor Pages
-- **ORM**: Entity Framework Core 8.0 (Sqlite & SqlServer providers)
-- **Database**: SQLite (default / cross-platform) or Microsoft SQL Server / LocalDB
-- **UI & Styling**: HTML5, CSS3, Bootstrap 5, Bootstrap Icons, Google Fonts (`Plus Jakarta Sans` & `Outfit`)
-- **Containerization**: Docker & Docker Compose
+- **Runtime**: [.NET 8 SDK](https://dotnet.microsoft.com/)
+- **Web Framework**: ASP.NET Core 8 Razor Pages
+- **ORM**: Entity Framework Core 8.0.34 (SQLite & SQL Server providers)
+- **Database**: SQLite (zero-configuration default) or Microsoft SQL Server
+- **Frontend**: HTML5, CSS3 (WCAG AA contrast compliant), Bootstrap 5, Bootstrap Icons
+- **Testing**: xUnit + `Microsoft.AspNetCore.Mvc.Testing` (`WebApplicationFactory<Program>`)
+- **Containerization**: Multi-stage `Dockerfile` & `docker-compose.yml`
 
 ---
 
-## 🚀 Quick Start (Local Development)
+## Quick Start (Local Development)
 
 ### Prerequisites
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or higher (`dotnet --version`)
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or higher
 
-### 1. Clone the Repository
+### 1. Clone & Run
 ```bash
 git clone https://github.com/Omar-Abdelkerem/Style-Sphere.git
 cd Style-Sphere
+dotnet run --project StyleSphere.csproj
 ```
 
-### 2. Run the Application
+Navigate to `http://localhost:5000`. The SQLite database (`StyleSphere.db`) is automatically initialized and seeded on startup.
+
+### 2. Run the Automated Test Suite
 ```bash
-dotnet run
+dotnet test
 ```
-
-*(Or use hot reload during development:)*
-```bash
-dotnet watch
-```
-
-### 3. Open in Browser
-Navigate to:
-```
-http://localhost:5000  (or https://localhost:5001)
-```
-
-The database (`StyleSphere.db`) is automatically created and pre-seeded with all categories, products, customer reviews, and demo users on first launch!
+Runs 45 automated unit, integration, security, and end-to-end user journey tests against isolated test databases.
 
 ---
 
-## 🔑 Demo Credentials
+## Running with Docker
 
-For quick testing without typing, 1-click demo buttons are provided on the Login page:
-
-| Role | Email | Password |
-| :--- | :--- | :--- |
-| **Admin** | `admin@stylesphere.com` | `admin123` |
-| **Customer** | `o@gmail.com` | `123456` |
-
----
-
-## 🐳 Running with Docker
-
-StyleSphere is fully dockerized for instant deployment on any host.
-
-### Using Docker Compose (Recommended)
 ```bash
 docker compose up --build
 ```
-Access the application at: **`http://localhost:5000`**
-
-### Using Docker CLI Directly
-```bash
-# Build image
-docker build -t stylesphere .
-
-# Run container
-docker run -d -p 5000:8080 --name stylesphere-app stylesphere
-```
+Access the application at `http://localhost:5000` (container listens on port `8080`).
 
 ---
 
-## 📁 Project Structure
+## Configuration (`appsettings.json`)
 
-```text
-Style-Sphere/
-├── Data/
-│   ├── AppDbContext.cs          # EF Core context with entity configurations
-│   └── DbInitializer.cs         # Automatic database schema and catalog seeder
-├── Models/                      # Domain entities (Product, Category, Order, Cart, User, etc.)
-├── Pages/                       # Razor Pages UI
-│   ├── Admin/                   # Admin management views (Products, Categories, Users, Reports)
-│   ├── Shared/                  # Master layouts (_Layout, _CustomerLayout)
-│   ├── Index.cshtml             # Homepage with editorial hero & catalog highlights
-│   ├── Products.cshtml          # Filterable catalog & search
-│   ├── details.cshtml           # Product details & reviews
-│   ├── cart.cshtml              # Shopping cart & line items
-│   ├── PlaceOrder.cshtml        # Checkout & order submission
-│   ├── Orders.cshtml            # Order history tracking
-│   ├── login.cshtml             # Authentication with 1-click demo logins
-│   └── Register.cshtml          # New account registration
-├── Properties/                  # Launch profiles & runtime settings
-├── wwwroot/                     # Static assets
-│   ├── css/                     # Custom monochrome editorial styling
-│   ├── images/products/         # High-resolution fashion photography
-│   └── js/                      # Frontend behaviors
-├── appsettings.json             # Configuration & database connection strings
-├── appsettings.Development.json # Development-specific settings
-├── Dockerfile                   # Multi-stage production container build
-├── docker-compose.yml           # Compose specification
-├── Program.cs                   # Application entrypoint & middleware pipeline
-├── StyleSphere.csproj           # Project configuration & NuGet dependencies
-└── StyleSphere.sln              # Visual Studio solution file
-```
-
----
-
-## ⚙️ Database Configuration
-
-StyleSphere dynamically adapts to your configuration in `appsettings.json`:
-
-### Option A: SQLite (Default & Recommended for Containers)
-Zero-configuration local file database. Works across Windows, macOS, Linux, and Docker:
 ```json
 {
   "ConnectionStrings": {
     "DefaultConnection": "Data Source=StyleSphere.db"
+  },
+  "StoreSettings": {
+    "TaxRate": 0.14,
+    "LowStockThreshold": 10,
+    "FreeShippingThreshold": 50.00,
+    "PageSize": 12
+  },
+  "Security": {
+    "PasswordResetTokenExpiryMinutes": 15,
+    "AuthRateLimitPermitsPerMinute": 10,
+    "FormRateLimitPermitsPerMinute": 20
   }
 }
 ```
-
-### Option B: Microsoft SQL Server
-To connect to SQL Server or Azure SQL Database, provide a standard SQL connection string:
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost,1433;Database=StyleSphere;User Id=sa;Password=YourPassword123!;TrustServerCertificate=True;"
-  }
-}
-```
-*`Program.cs` automatically detects SQL Server if `Server=` is present in the connection string and applies retry policies accordingly.*
-
----
-
-## ☁️ Deployment Guide
-
-### Deploying to Cloud Platforms (Render, Railway, Fly.io, Azure)
-
-#### Deploy with Docker (Render / Railway / Fly.io):
-1. Connect your GitHub repository: `https://github.com/Omar-Abdelkerem/Style-Sphere`
-2. Select **Docker** as the deployment runtime.
-3. The platform will automatically detect `Dockerfile` and expose port `8080`.
-4. Your application will launch with SQLite pre-seeded and ready to use!
-
-#### Deploy to Azure App Service:
-1. Create a **Linux App Service** with .NET 8 runtime.
-2. Configure GitHub Actions continuous deployment from the repository `main` branch.
-3. (Optional) Set `ConnectionStrings__DefaultConnection` in Azure Configuration if connecting to Azure SQL.
-
----
-
-## 📝 License
-
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+- **Custom Initial Admin Password in Production**: Set the environment variable `ADMIN_INITIAL_PASSWORD` before first launch.
+- **Switching to SQL Server**: Set `ConnectionStrings__DefaultConnection` to a SQL Server connection string containing `Server=...`.

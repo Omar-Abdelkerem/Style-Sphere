@@ -3,142 +3,129 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using StyleSphere.Data;
 using StyleSphere.Models;
+using StyleSphere.Services;
 
 namespace StyleSphere.Pages.Admin.Products;
 
-// This page allows admin to create a new product
 public class CreateModel : PageModel
 {
-    // Database connection
     private readonly AppDbContext _db;
-    
-    // WebHostEnvironment is needed to save uploaded image files
     private readonly IWebHostEnvironment _environment;
 
-    // Constructor
     public CreateModel(AppDbContext db, IWebHostEnvironment environment)
     {
         _db = db;
         _environment = environment;
     }
 
-    // This method runs when the page loads (GET request)
-    public void OnGet()
+    public IActionResult OnGet()
     {
-        // Step 1: Get all categories from database
-        // This is needed to populate the category dropdown
-        var categories = _db.Categories.OrderBy(c => c.Name).ToList();
+        if (HttpContext.Session.GetString("UserRole") != "Admin")
+        {
+            return RedirectToPage("/login");
+        }
 
-        // Step 2: Store categories in ViewData so the .cshtml file can use them
-        ViewData["Categories"] = categories;
+        LoadCategories();
+        return Page();
     }
 
-    // This method runs when the form is submitted (POST request)
-    // Parameters come from the form fields
-    public IActionResult OnPost(string name, string description, decimal price, int stock, int categoryId, IFormFile imageFile)
+    public IActionResult OnPost(string? name, string? description, decimal price, int stock, int categoryId, IFormFile? imageFile)
     {
-        // Step 1: Validate required fields
+        if (HttpContext.Session.GetString("UserRole") != "Admin")
+        {
+            return RedirectToPage("/login");
+        }
+
         if (string.IsNullOrWhiteSpace(name))
         {
             ViewData["ErrorMessage"] = "Product name is required.";
-            var categories = _db.Categories.OrderBy(c => c.Name).ToList();
-            ViewData["Categories"] = categories;
+            LoadCategories();
             return Page();
         }
 
-        // Step 2: Validate price (must be greater than 0)
-        if (price <= 0)
+        var trimmedName = name.Trim();
+        var trimmedDesc = description?.Trim();
+
+        if (trimmedName.Length > 100)
         {
-            ViewData["ErrorMessage"] = "Product price must be greater than 0.";
-            var categories = _db.Categories.OrderBy(c => c.Name).ToList();
-            ViewData["Categories"] = categories;
+            ViewData["ErrorMessage"] = "Product name must not exceed 100 characters.";
+            LoadCategories();
             return Page();
         }
 
-        // Step 3: Validate stock (must be 0 or greater)
-        if (stock < 0)
+        if (!string.IsNullOrEmpty(trimmedDesc) && trimmedDesc.Length > 1000)
         {
-            ViewData["ErrorMessage"] = "Product stock cannot be negative.";
-            var categories = _db.Categories.OrderBy(c => c.Name).ToList();
-            ViewData["Categories"] = categories;
+            ViewData["ErrorMessage"] = "Product description must not exceed 1000 characters.";
+            LoadCategories();
             return Page();
         }
 
-        // Step 4: Validate category exists
+        if (price <= 0 || price > 999999.99m)
+        {
+            ViewData["ErrorMessage"] = "Product price must be between $0.01 and $999,999.99.";
+            LoadCategories();
+            return Page();
+        }
+
+        if (stock < 0 || stock > 100000)
+        {
+            ViewData["ErrorMessage"] = "Product stock must be between 0 and 100,000.";
+            LoadCategories();
+            return Page();
+        }
+
         var category = _db.Categories.Find(categoryId);
         if (category == null)
         {
             ViewData["ErrorMessage"] = "Selected category does not exist.";
-            var categories = _db.Categories.OrderBy(c => c.Name).ToList();
-            ViewData["Categories"] = categories;
+            LoadCategories();
             return Page();
         }
 
-        // Step 5: Handle image upload if provided
         string? imageName = null;
         if (imageFile != null && imageFile.Length > 0)
         {
-            // Validate file type (only allow image files)
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
-            var fileExtension = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
-            
-            if (!allowedExtensions.Contains(fileExtension))
+            var (isValid, errorMsg, safeExt) = ImageUploadValidator.ValidateImage(imageFile);
+            if (!isValid || safeExt == null)
             {
-                ViewData["ErrorMessage"] = "Only JPG, PNG, and GIF images are allowed.";
-                var categories = _db.Categories.OrderBy(c => c.Name).ToList();
-                ViewData["Categories"] = categories;
+                ViewData["ErrorMessage"] = errorMsg ?? "Invalid image file.";
+                LoadCategories();
                 return Page();
             }
 
-            // Validate file size (maximum 5MB)
-            if (imageFile.Length > 5 * 1024 * 1024)
-            {
-                ViewData["ErrorMessage"] = "Image size must be less than 5MB.";
-                var categories = _db.Categories.OrderBy(c => c.Name).ToList();
-                ViewData["Categories"] = categories;
-                return Page();
-            }
-
-            // Use original filename (must match database)
-            imageName = imageFile.FileName;
-            
-            // Path to save the image file
+            imageName = ImageUploadValidator.GenerateSafeFileName(safeExt);
             var uploadsFolder = Path.Combine(_environment.WebRootPath, "images", "products");
-            
-            // Create folder if it doesn't exist
             if (!Directory.Exists(uploadsFolder))
             {
                 Directory.CreateDirectory(uploadsFolder);
             }
 
-            // Full path where image will be saved
             var filePath = Path.Combine(uploadsFolder, imageName);
-
-            // Save the image file to disk
             using (var fileStream = new FileStream(filePath, FileMode.Create))
             {
                 imageFile.CopyTo(fileStream);
             }
         }
 
-        // Step 6: Create new product
         var newProduct = new Product
         {
-            Name = name,
-            Description = description,
+            Name = trimmedName,
+            Description = trimmedDesc,
             Price = price,
             Stock = stock,
             CategoryID = categoryId,
-            ImageName = imageName  // Store image filename in database
+            ImageName = imageName
         };
 
-        // Step 7: Add product to database and save
         _db.Products.Add(newProduct);
         _db.SaveChanges();
 
-        // Step 8: Show success message and redirect to product list
-        TempData["SuccessMessage"] = "Product created successfully!";
+        TempData["SuccessMessage"] = "Product created successfully.";
         return RedirectToPage("./Index");
     }
-}
 
+    private void LoadCategories()
+    {
+        ViewData["Categories"] = _db.Categories.AsNoTracking().OrderBy(c => c.Name).ToList();
+    }
+}

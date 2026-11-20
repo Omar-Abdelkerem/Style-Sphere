@@ -1,69 +1,81 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using StyleSphere.Data;
+using StyleSphere.Services;
 
 namespace StyleSphere.Pages;
 
-// This page handles user login
+[EnableRateLimiting("auth")]
 public class loginModel : PageModel
 {
-    // Database connection
     private readonly AppDbContext _db;
 
-    // Constructor: receives database connection
     public loginModel(AppDbContext db)
     {
         _db = db;
     }
 
-    // This method runs when the page loads (GET request)
-    // Just show the login form
-    public void OnGet()
+    public void OnGet(string? returnUrl = null)
     {
-        // No special logic needed, just show the page
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+        }
     }
 
-    // This method runs when the form is submitted (POST request)
-    // Parameters come from the form fields (email and password)
-    public IActionResult OnPost(string email, string password)
+    public IActionResult OnPost(string? email, string? password, string? returnUrl = null)
     {
-        // Step 1: Validate that email and password were provided
-        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrEmpty(password))
         {
             ViewData["ErrorMessage"] = "Please enter both email and password.";
-            return Page();  // Show the page again with error message
+            ViewData["EnteredEmail"] = email;
+            return Page();
         }
 
-        // Step 2: Search for user in database
-        // Look for a user where email AND password match
-        var user = _db.Users
-            .FirstOrDefault(u => u.Email == email && u.Password == password);
-
-        // Step 3: Check if user was found
-        if (user == null)
+        if (email.Length > 100 || password.Length > 255)
         {
-            // User not found - wrong email or password
             ViewData["ErrorMessage"] = "Invalid email or password. Please try again.";
-            return Page();  // Show the page again with error message
+            return Page();
         }
 
-        // Step 4: User found! Store user information in session
-        // Session is like a temporary storage that remembers who is logged in
+        var normalizedEmail = email.Trim().ToLowerInvariant();
+        var user = _db.Users
+            .FirstOrDefault(u => u.Email.ToLower() == normalizedEmail);
+
+        if (user == null || !PasswordHasher.VerifyPassword(password, user.Password))
+        {
+            ViewData["ErrorMessage"] = "Invalid email or password. Please try again.";
+            ViewData["EnteredEmail"] = email.Trim();
+            return Page();
+        }
+
+        // Transparently upgrade hash if user still had a legacy format
+        if (!PasswordHasher.IsHashed(user.Password))
+        {
+            user.Password = PasswordHasher.HashPassword(password);
+            _db.SaveChanges();
+        }
+
+        // Prevent session fixation: clear pre-login session state and rotate session token
+        HttpContext.Session.Clear();
+        HttpContext.Session.SetString("SessionNonce", Guid.NewGuid().ToString("N"));
         HttpContext.Session.SetString("UserId", user.UserID.ToString());
         HttpContext.Session.SetString("UserName", user.Name);
         HttpContext.Session.SetString("UserRole", user.Role);
+        HttpContext.Session.SetString("SessionVersion", user.SessionVersion.ToString());
 
-        // Step 5: Redirect based on user role
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
+            return LocalRedirect(returnUrl);
+        }
+
         if (user.Role == "Admin")
         {
-            // Admin users go to admin dashboard
             return RedirectToPage("/Admin/Index");
         }
-        else
-        {
-            // Regular customers go to home page
-            return RedirectToPage("/Index");
-        }
+
+        return RedirectToPage("/Index");
     }
 }

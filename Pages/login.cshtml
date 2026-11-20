@@ -2,6 +2,7 @@
 @model StyleSphere.Pages.loginModel
 @{
     ViewData["Title"] = "Sign In - StyleSphere";
+    ViewData["MetaDescription"] = "Sign in to your StyleSphere account to access your shopping bag, order history, and account preferences.";
     Layout = "_CustomerLayout";
 }
 
@@ -11,17 +12,6 @@
             <h1 class="h4 fw-bold text-center mb-1 text-uppercase letter-spacing-1">Sign In</h1>
             <p class="text-secondary small text-center mb-4">Access your bag, order history, and account settings.</p>
 
-            <!-- Clean Demo Quick-Fill Bar -->
-            <div class="p-2 mb-3 bg-light border text-center">
-                <span class="small text-muted me-2">Quick Demo Fill:</span>
-                <button type="button" class="btn btn-sm btn-outline-dark py-1 px-2 small" onclick="fillCreds('admin@stylesphere.com', 'admin123')">
-                    Admin
-                </button>
-                <button type="button" class="btn btn-sm btn-outline-dark py-1 px-2 small ms-1" onclick="fillCreds('o@gmail.com', '123456')">
-                    Customer
-                </button>
-            </div>
-
             @if (ViewData["ErrorMessage"] != null)
             {
                 <div class="alert alert-danger rounded-0 py-2 px-3 small mb-3" role="alert">
@@ -30,17 +20,22 @@
             }
 
             <form method="post">
+                @if (ViewData["ReturnUrl"] != null)
+                {
+                    <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+                }
+
                 <div class="mb-3">
                     <label for="email" class="form-label">Email Address</label>
-                    <input type="email" name="email" id="email" class="form-control" placeholder="name@domain.com" required />
+                    <input type="email" name="email" id="email" value="@ViewData["EnteredEmail"]" class="form-control" placeholder="name@domain.com" maxlength="100" autocomplete="email" required />
                 </div>
 
                 <div class="mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <label for="password" class="form-label mb-0">Password</label>
-                        <a asp-page="/ChangePassword" class="small text-secondary">Forgot?</a>
+                        <a asp-page="/ForgotPassword" class="small text-secondary">Forgot password?</a>
                     </div>
-                    <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required />
+                    <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" maxlength="255" autocomplete="current-password" required />
                 </div>
 
                 <button type="submit" class="btn btn-solid w-100 py-3 mb-3">
@@ -54,10 +49,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    function fillCreds(e, p) {
-        document.getElementById('email').value = e;
-        document.getElementById('password').value = p;
-    }
-</script>

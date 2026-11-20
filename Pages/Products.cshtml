@@ -1,29 +1,36 @@
 ﻿@page
 @model StyleSphere.Pages.ProductsModel
 @{
-    ViewData["Title"] = "Catalog - StyleSphere";
-    Layout = "_CustomerLayout";
-    
     var categories = ViewData["Categories"] as List<StyleSphere.Models.Category>;
     var products = ViewData["Products"] as List<StyleSphere.Models.Product>;
     var selectedCategoryId = ViewData["SelectedCategoryId"] as int?;
     var searchTerm = ViewData["SearchTerm"] as string;
+    int totalCount = ViewData["TotalCount"] as int? ?? (products?.Count ?? 0);
+    int currentPage = ViewData["CurrentPage"] as int? ?? 1;
+    int totalPages = ViewData["TotalPages"] as int? ?? 1;
+
+    var activeCatName = categories?.FirstOrDefault(c => selectedCategoryId.HasValue && c.CategoryID == selectedCategoryId.Value)?.Name;
+    ViewData["Title"] = !string.IsNullOrEmpty(activeCatName) ? $"{activeCatName} Collection - StyleSphere" : "Catalog - StyleSphere";
+    ViewData["MetaDescription"] = !string.IsNullOrEmpty(activeCatName)
+        ? $"Browse StyleSphere's {activeCatName} collection. Contemporary silhouettes, fine natural fabrics, and complimentary express delivery."
+        : "Browse the complete StyleSphere catalog across Men's, Women's, Footwear, and Accessories collections.";
+    Layout = "_CustomerLayout";
 }
 
 <div class="container py-4 pb-5">
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-baseline mb-3 pb-2 border-bottom">
+    <div class="d-flex flex-wrap justify-content-between align-items-baseline gap-3 mb-3 pb-2 border-bottom">
         <div>
-            <h1 class="h3 fw-bold mb-1 text-uppercase letter-spacing-1">Catalog</h1>
-            <span class="text-secondary small">@(products?.Count ?? 0) pieces available</span>
+            <h1 class="h3 fw-bold mb-1 text-uppercase letter-spacing-1">@(!string.IsNullOrEmpty(activeCatName) ? activeCatName : "Catalog")</h1>
+            <span class="text-secondary small">@totalCount @(totalCount == 1 ? "piece" : "pieces") available</span>
         </div>
         <div>
-            <form method="get" asp-page="/Products" class="d-flex gap-2">
+            <form method="get" asp-page="/Products" class="d-flex gap-2" role="search">
                 @if (selectedCategoryId.HasValue)
                 {
                     <input type="hidden" name="categoryId" value="@selectedCategoryId.Value" />
                 }
-                <input type="text" name="search" class="search-input" placeholder="Search catalog..." value="@searchTerm" style="width: 180px;" />
+                <input type="search" name="search" class="search-input" placeholder="Search catalog..." aria-label="Search catalog" value="@searchTerm" maxlength="100" style="width: 180px;" />
                 <button type="submit" class="btn btn-sm btn-solid">Filter</button>
             </form>
         </div>
@@ -50,7 +57,7 @@
     @if (!string.IsNullOrEmpty(searchTerm))
     {
         <div class="d-flex justify-content-between align-items-center bg-light p-3 mb-4 border">
-            <span class="small text-muted">Showing results for: <strong class="text-dark">"@searchTerm"</strong></span>
+            <span class="small text-secondary">Showing results for: <strong class="text-dark">"@searchTerm"</strong></span>
             <a asp-page="/Products" class="small text-dark text-uppercase fw-semibold">Clear Filter &times;</a>
         </div>
     }
@@ -61,16 +68,16 @@
         <div class="product-grid">
             @foreach (var product in products)
             {
-                <div class="product-item">
+                <article class="product-item">
                     <a asp-page="/details" asp-route-id="@product.ProductID" class="product-image-container text-decoration-none">
                         @if (!string.IsNullOrEmpty(product.ImageName))
                         {
-                            <img src="~/images/products/@product.ImageName" alt="@product.Name" loading="lazy" />
+                            <img src="~/images/products/@product.ImageName" alt="@product.Name" width="600" height="800" loading="lazy" />
                         }
                         else
                         {
-                            <div class="d-flex align-items-center justify-content-center h-100 w-100 text-muted">
-                                <i class="bi bi-image fs-2"></i>
+                            <div class="d-flex align-items-center justify-content-center h-100 w-100 text-secondary">
+                                <i class="bi bi-image fs-2" aria-hidden="true"></i>
                             </div>
                         }
                     </a>
@@ -79,16 +86,18 @@
                         @(product.Category?.Name ?? "Apparel")
                     </div>
 
-                    <a asp-page="/details" asp-route-id="@product.ProductID" class="text-decoration-none">
-                        <div class="product-meta-title">@product.Name</div>
-                    </a>
+                    <h2 class="h6 mb-1">
+                        <a asp-page="/details" asp-route-id="@product.ProductID" class="text-decoration-none product-meta-title d-block">
+                            @product.Name
+                        </a>
+                    </h2>
 
                     <div class="product-meta-price">
                         $@product.Price.ToString("F2")
                     </div>
 
-                    <div class="product-meta-stock @(product.Stock <= 15 ? "low" : "")">
-                        @if (product.Stock > 15)
+                    <div class="product-meta-stock @(product.Stock <= 10 ? "low" : "")">
+                        @if (product.Stock > 10)
                         {
                             <span>In Stock (@product.Stock)</span>
                         }
@@ -116,14 +125,30 @@
                     {
                         <button class="btn btn-add-bag disabled" disabled style="opacity: 0.5;">Out of Stock</button>
                     }
-                </div>
+                </article>
             }
         </div>
+
+        @if (totalPages > 1)
+        {
+            <nav aria-label="Catalog pagination" class="d-flex justify-content-center align-items-center gap-2 mt-5 pt-3 border-top">
+                @for (int p = 1; p <= totalPages; p++)
+                {
+                    <a asp-page="/Products"
+                       asp-route-categoryId="@selectedCategoryId"
+                       asp-route-search="@searchTerm"
+                       asp-route-pageNumber="@p"
+                       class="filter-tab-link @(p == currentPage ? "active" : "")">
+                        @p
+                    </a>
+                }
+            </nav>
+        }
     }
     else
     {
-        <div class="py-5 text-center text-muted border my-4">
-            <h5 class="fw-bold mb-2">No Matching Products</h5>
+        <div class="py-5 text-center text-secondary border my-4">
+            <h2 class="h5 fw-bold mb-2">No Matching Products</h2>
             <p class="small mb-3">Try adjusting your keyword filter or browse another department.</p>
             <a asp-page="/Products" class="btn btn-sm btn-solid">Reset Filter</a>
         </div>

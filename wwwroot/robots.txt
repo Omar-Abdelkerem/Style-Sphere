@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+Allow: /Products
+Allow: /details/
+Allow: /Policies
+Disallow: /Admin/
+Disallow: /Admin
+Disallow: /cart
+Disallow: /PlaceOrder
+Disallow: /Orders
+Disallow: /ChangePassword
+Disallow: /AddReview
+Disallow: /AddToCart
+Disallow: /Logout
+Disallow: /ForgotPassword
+Disallow: /ResetPassword
+
+Sitemap: /sitemap.xml
